@@ -6,7 +6,7 @@ const userController = {
       const users = await UserModel.findAll();
       res.json(users);
     } catch (error) {
-      console.error('Error getting users:', error);
+      console.error('Error getting users: ', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   },
