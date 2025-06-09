@@ -13,11 +13,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@prisma/client": "^6.9.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",
-    "mysql2": "^3.14.1"
+    "mysql2": "^3.14.1",
+    "svix": "^1.67.0"
   },
   "devDependencies": {
     "prisma": "^6.9.0"
