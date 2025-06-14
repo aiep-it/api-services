@@ -1,19 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model User {
+  id               String             @id @default(uuid())
+  clerkId          String             @unique
+  email            String             @unique
+  firstName        String?
+  lastName         String?
+  role             String?            @default("user")
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  UserNodeProgress UserNodeProgress[]
 }
 
-model User {
-  id        String   @id @default(uuid())
-  clerkId   String   @unique
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  role      String?  @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Node {
+  id               String             @id
+  title            String
+  roadmapId        String
+  created_at       DateTime           @default(now())
+  description      String?
+  updated_at       DateTime
+  Roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
+  UserNodeProgress UserNodeProgress[]
+
+  @@index([roadmapId], map: "Node_roadmapId_fkey")
 }
+
+model Roadmap {
+  id         String    @id
+  name       String
+  categoryId String
+  type       String
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime
+  Node       Node[]
+}
+
+model UserNodeProgress {
+  userId      String
+  nodeId      String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  Node        Node      @relation(fields: [nodeId], references: [id])
+  User        User      @relation(fields: [userId], references: [id])
+
+  @@id([userId, nodeId])
+  @@index([nodeId], map: "UserNodeProgress_nodeId_fkey")
+}
+
