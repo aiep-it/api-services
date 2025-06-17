@@ -4,11 +4,13 @@
   "description": "aiep-it-be",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "prisma generate & nodemon",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev",
-    "studio": "prisma studio",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "migrate": "prisma generate & prisma migrate deploy & prisma db push",
+    "studio": "prisma generate & prisma studio",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sync:pull": "prisma db pull  & prisma generate",
+    "sync:push": "prisma db push"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +26,10 @@
     "express": "^4.17.1",
     "joi": "^17.9.2",
     "mysql2": "^3.14.1",
+
+
+    "nodemon": "^3.1.10",
+
     "svix": "^1.67.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
