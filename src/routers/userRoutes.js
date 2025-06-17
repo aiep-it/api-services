@@ -1,11 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const { updateUserMetadata } = require('../controllers/userController');
+const {
+  updateUserMetadata,
+  getCurrentUserRole,
+  getAllUsers,
+  getUserByClerkId,
+  getUserMetrics,
+  toggleRoadmapBookmark,
+  getLearningRoadmaps
 
-router.post('/update-metadata', updateUserMetadata);
+} = require('../controllers/userController');
+
+const { protect, authorizeRoles } = require('../middleware/authMiddleware');
+
+router.post('/update-metadata', protect, authorizeRoles(['admin']), updateUserMetadata); // chỉ admin được cập nhật metadata
+router.get('/me', protect, getCurrentUserRole); // cần xác thực
+router.get('/', protect, authorizeRoles(['admin']), getAllUsers); // chỉ admin
+
+router.get('/:id', protect, authorizeRoles(['admin']), getUserByClerkId); // chỉ admin
+router.get('/me/metrics', protect, getUserMetrics);
+router.get('/me/learning-roadmaps', protect, getLearningRoadmaps); // lấy roadmap đã bookmark của user
+
+router.post('/me/bookmarks/:roadmapId', protect, toggleRoadmapBookmark);
+
 
 module.exports = router;
-
 
 
 // const express = require('express');
