@@ -8,7 +8,8 @@ const { toggleRoadmapBookmark } = require('../controllers/userController');
 
 
 // Lấy tất cả Roadmaps (có thể kèm tiến độ nếu user đăng nhập)
-router.get('/', protect, roadmapController.getAllRoadmaps); // Protect để req.user có thể chứa thông tin user
+// router.get('/', protect, roadmapController.getAllRoadmaps); // Protect để req.user có thể chứa thông tin user
+router.get('/', protect,roadmapController.getAllRoadmaps); // Protect để req.user có thể chứa thông tin user
 
 // Lấy Roadmap theo ID (có thể kèm tiến độ nếu user đăng nhập)
 router.get('/:id', protect, roadmapController.getRoadmapById);

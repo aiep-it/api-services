@@ -153,7 +153,8 @@ const getUserByClerkId = async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch user' });
   }
 };
- // GET /api/users/me/learning-roadmaps
+
+// GET /api/users/me/learning-roadmaps
 const getLearningRoadmaps = async (req, res) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -163,22 +164,38 @@ const getLearningRoadmaps = async (req, res) => {
       where: { userId },
       include: {
         roadmap: {
-          where: { is_deleted: false }, // Không lấy roadmap đã bị xóa
+          include: {
+            nodes: true,
+          },
         },
       },
     });
 
-    const learningRoadmaps = bookmarks.map((bookmark) => {
-      const roadmap = bookmark.roadmap;
-      return {
-        id: roadmap.id,
-        name: roadmap.name,
-        categoryId: roadmap.categoryId,
-        type: roadmap.type,
-        progressPercentage: 0, // Sẽ cập nhật sau khi có node
-        is_deleted: roadmap.is_deleted,
-      };
-    });
+    const learningRoadmaps = await Promise.all(
+      bookmarks
+        .filter((b) => !b.roadmap?.is_deleted)
+        .map(async (b) => {
+          const totalNodes = b.roadmap.nodes.length;
+          const completed = await prisma.userNodeProgress.count({
+            where: {
+              userId,
+              nodeId: { in: b.roadmap.nodes.map((n) => n.id) },
+              isCompleted: true,
+            },
+          });
+
+          const progressPercentage = totalNodes > 0 ? (completed / totalNodes) * 100 : 0;
+
+          return {
+            id: b.roadmap.id,
+            name: b.roadmap.name,
+            categoryId: b.roadmap.categoryId,
+            type: b.roadmap.type,
+            progressPercentage,
+            is_deleted: b.roadmap.is_deleted,
+          };
+        })
+    );
 
     return res.status(200).json(learningRoadmaps);
   } catch (err) {
@@ -191,8 +208,9 @@ module.exports = {
   updateUserMetadata,
   getCurrentUserRole,
   getUserMetrics,
+  toggleRoadmapBookmark,
   getAllUsers,
   getUserByClerkId,
   getLearningRoadmaps,
-  toggleRoadmapBookmark
 };
+ 
