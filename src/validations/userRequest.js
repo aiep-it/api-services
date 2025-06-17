@@ -16,14 +16,14 @@ const createUserSchema = Joi.object({
     'string.min': `"password" should have a minimum length of {#limit}`,
     'any.required': `"password" is required`,
   }),
-  role: Joi.string().valid('user', 'admin').optional(),
+  role: Joi.string().valid('user', 'admin','staff').optional(),
 });
 
 // Schema validate cupdate
 const updateUserSchema = Joi.object({
   name: Joi.string().min(3).max(30).optional(),
   email: Joi.string().email().optional(),
-  role: Joi.string().valid('user', 'admin').optional(),
+  role: Joi.string().valid('user', 'admin','staff').optional(),
 }).min(1);
 
 module.exports = {
