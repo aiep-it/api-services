@@ -14,14 +14,19 @@
   "license": "ISC",
   "dependencies": {
     "@clerk/backend": "^2.0.0",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/express": "^1.6.0",
+    "@clerk/nextjs": "^6.22.0",
+    "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.9.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "joi": "^17.13.3",
+    "dotenv": "^16.0.3",
+    "express": "^4.17.1",
+    "joi": "^17.9.2",
     "mysql2": "^3.14.1",
-    "svix": "^1.67.0"
+    "svix": "^1.67.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "prisma": "^6.9.0"
