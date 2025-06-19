@@ -185,7 +185,7 @@ exports.deleteRoadmap = async (req, res) => {
   }
 };
 
-//  THÊM API NÀY: Toggle Bookmark cho Roadmap (User)
+//   Toggle Bookmark cho Roadmap (User)
 exports.toggleBookmarkRoadmap = async (req, res) => {
   const { id } = req.params; // roadmapId
   const userId = req.user.id; // Lấy userId từ middleware xác thực
