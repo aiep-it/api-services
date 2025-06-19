@@ -4,17 +4,6 @@
     const categoryController = require('../controllers/categoryController');
     const { protect, authorizeRoles } = require('../middleware/authMiddleware'); // Đảm bảo đã import
 
-    // // User/Guest: Lấy tất cả Categories
-    // router.get('/', categoryController.getAllCategories);
-
-    // // Admin/Staff: Tạo Category mới
-    // router.post('/',  categoryController.createCategory);
-
-    // // Admin/Staff: Cập nhật Category
-    // router.put('/:id', categoryController.updateCategory);
-
-    // // Admin/Staff: Xóa Category
-    // router.delete('/:id',  categoryController.deleteCategory);
 
       // User/Guest: Lấy tất cả Categories
     router.get('/', categoryController.getAllCategories);
