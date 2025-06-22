@@ -9,10 +9,10 @@ const db = require('./src/config/db');
 const version = process.env.API_VERSION || '1.0';
 
 
-const userRoutes = require('./src/routers/userRoutes');
-const webhookRouter = require('./src/routers/webhookRouter');
-const roadmapRoutes = require('./src/routers/roadmapRoutes');
-const categoryRoutes = require('./src/routers/categoryRoutes');
+const userRoutes = require('./src/routers/user.routes');
+const webhookRouter = require('./src/routers/webhook.routes');
+const roadmapRoutes = require('./src/routers/roadmap.routes');
+const categoryRoutes = require('./src/routers/category.routes');
 
 
 app.use(cors({
