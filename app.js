@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const { clerkMiddleware } = require('@clerk/express');
 require('dotenv').config();
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 
 const app = express();
 const db = require('./src/config/db');
@@ -13,6 +15,7 @@ const userRoutes = require('./src/routers/user.routes');
 const webhookRouter = require('./src/routers/webhook.routes');
 const roadmapRoutes = require('./src/routers/roadmap.routes');
 const categoryRoutes = require('./src/routers/category.routes');
+const nodeRoutes = require('./src/routers/node.routes');
 
 
 app.use(cors({
@@ -29,16 +32,19 @@ app.use(clerkMiddleware({
 }));
 
 
-app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRouter);
+app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRouter);
 
 
-app.use('/api/users', userRoutes);
-app.use('/api/roadmaps', roadmapRoutes); 
-app.use('/api/categories', categoryRoutes);
+app.use('/users', userRoutes);
+app.use('/roadmaps', roadmapRoutes); 
+app.use('/categories', categoryRoutes);
+app.use('/node', nodeRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 
 db.getConnection()
-  .then(() => console.log('✅ MySQL connected successfully! you gay baby'))
+  .then(() => console.log('✅ MySQL connected successfully'))
   .catch((err) => console.error('❌ MySQL connection failed:', err));
 
 module.exports = app;

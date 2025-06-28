@@ -1,39 +1,140 @@
 const express = require('express');
-const router = express.Router();
-
-// Controllers (refactor)
 const userController = require('../controllers/user/user.controller');
 const meController = require('../controllers/user/me.controller');
 const metadataController = require('../controllers/user/metadata.controller');
 const bookmarkController = require('../controllers/roadmap/bookmark.controller');
-
-// Middleware
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
-// ===== ORDER MATTERS =====
-// Luôn đặt route cụ thể như /me/... trước /:id để tránh conflict
+const router = express.Router();
 
-// 1. Admin cập nhật metadata người dùng
+// Controllers
+
+// Middleware
+
+// ===== ROUTES =====
+
+/**
+ * @swagger
+ * /update-metadata:
+ *   post:
+ *     summary: Update user metadata
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Metadata updated successfully
+ *       403:
+ *         description: Forbidden
+ */
 router.post('/update-metadata', protect, authorizeRoles(['admin']), metadataController.updateUserMetadata);
 
 // 2. Lấy role hiện tại (Clerk ID)
+/**
+ * @swagger
+ * /me:
+ *   get:
+ *     summary: Get current user role
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user role retrieved successfully
+ */
 router.get('/me', protect, meController.getCurrentUserRole);
 
 // 3. Lấy metrics người dùng hiện tại
+/**
+ * @swagger
+ * /me/metrics:
+ *   get:
+ *     summary: Get current user metrics
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User metrics retrieved successfully
+ */
 router.get('/me/metrics', protect, meController.getUserMetrics);
 
 // 4. Lấy roadmap đã bookmark (learning-roadmaps)
+/**
+ * @swagger
+ * /me/learning-roadmaps:
+ *   get:
+ *     summary: Get bookmarked learning roadmaps
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of bookmarked learning roadmaps
+ */
 router.get('/me/learning-roadmaps', protect, userController.getLearningRoadmaps);
 
 // 5. Toggle bookmark roadmap
-router.post('/:roadmapId/bookmark', protect, bookmarkController.toggleBookmarkRoadmap); // Endpoint bookmark/unbookmark
+/**
+ * @swagger
+ * /{roadmapId}/bookmark:
+ *   post:
+ *     summary: Toggle bookmark for a roadmap
+ *     tags: [Roadmap]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: roadmapId
+ *         in: path
+ *         required: true
+ *         description: ID of the roadmap to bookmark/unbookmark
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Bookmark toggled successfully
+ */
+router.post('/:roadmapId/bookmark', protect, bookmarkController.toggleBookmarkRoadmap);
 
 // 6. Admin: Lấy toàn bộ user
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Get all users
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       403:
+ *         description: Forbidden
+ */
 router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
 
 // 7. Admin: Lấy user theo Clerk ID
+/**
+ * @swagger
+ * /{id}:
+ *   get:
+ *     summary: Get user by Clerk ID
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Clerk ID of the user
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *       403:
+ *         description: Forbidden
+ */
 router.get('/:id', protect, authorizeRoles(['admin']), userController.getUserByClerkId);
-
-// router.post('/me/bookmarks/:roadmapId', protect, userController.toggleRoadmapBookmark);
 
 module.exports = router;

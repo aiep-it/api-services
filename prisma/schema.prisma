@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,63 +21,65 @@ model User {
 }
 
 model Roadmap {
-  id         String    @id @default(cuid())
-  name       String
-  type       String
-  isNew      Boolean   @default(false)
-  is_deleted Boolean   @default(false)
-  deleted_at DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-
-  categoryId String
-
-  category Category @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
-
+  id                  String                @id @default(cuid())
+  name                String
+  is_deleted          Boolean               @default(false)
+  deleted_at          DateTime?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  categoryId          String?
+  isNew               Boolean               @default(false)
+  description         String?
   nodes               Node[]
+  category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
   UserRoadmapBookmark UserRoadmapBookmark[]
+
+  @@index([categoryId], map: "Roadmap_categoryId_fkey")
 }
 
 model Node {
   id               String             @id @default(cuid())
   roadmapId        String
-  roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
   title            String
   description      String?
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
+  roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
   userNodeProgress UserNodeProgress[]
+
+  @@index([roadmapId], map: "Node_roadmapId_fkey")
 }
 
 model UserNodeProgress {
   userId      String
   nodeId      String
-  user        User      @relation(fields: [userId], references: [id])
-  node        Node      @relation(fields: [nodeId], references: [id])
   isCompleted Boolean   @default(false)
   completedAt DateTime?
+  node        Node      @relation(fields: [nodeId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 
   @@id([userId, nodeId])
+  @@index([nodeId], map: "UserNodeProgress_nodeId_fkey")
 }
 
 model UserRoadmapBookmark {
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   roadmapId String
-  roadmap   Roadmap  @relation(fields: [roadmapId], references: [id])
   createdAt DateTime @default(now())
+  roadmap   Roadmap  @relation(fields: [roadmapId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, roadmapId])
+  @@index([roadmapId], map: "UserRoadmapBookmark_roadmapId_fkey")
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String    @id @default(cuid())
+  name        String    @unique
   type        String
   description String?
-  order       Int      @default(0)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  roadmaps Roadmap[] @relation("CategoryToRoadmaps")
+  order       Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  roadmaps    Roadmap[] @relation("CategoryToRoadmaps")
 }
