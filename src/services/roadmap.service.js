@@ -3,15 +3,13 @@ const prisma = require('../../lib/prisma');
 const { calculateUserRoadmapProgress, getUserBookmarkStatus } = require('../utils/roadmap.utils');
 
 exports.createRoadmap = async (data) => {
-  const { name, categoryId, type, isNew } = data;
-  if (!name || !categoryId || !type) {
+  const { name, categoryId,  isNew } = data;
+  if (!name || !categoryId) {
     throw new Error('Missing required fields: name, categoryId, or type');
   }
   return await prisma.roadmap.create({
     data: {
-      name,
-      categoryId,
-      type,
+      ...data,
       isNew: isNew || false,
     },
   });
@@ -38,6 +36,9 @@ exports.getAllRoadmaps = async (userId) => {
 exports.getRoadmapById = async (id, userId) => {
   const roadmap = await prisma.roadmap.findUnique({
     where: { id, is_deleted: false },
+    include: {
+      category: true,
+    },
   });
 
   if (!roadmap) return null;
