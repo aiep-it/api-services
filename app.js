@@ -20,7 +20,7 @@ const vocabRoutes = require('./src/routers/vocab.routes')
 
 
 app.use(cors({
-  origin: `http://localhost:${process.env.PORT}`,
+  origin: `http://localhost:3000`,
   credentials: true,
 }));
 
