@@ -40,7 +40,12 @@ app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 
 app.use('/categories', categoryRoutes);
 app.use('/node', nodeRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  swaggerOptions: {
+    url: '/api/swagger.json',
+  },
+}));
 
 
 
