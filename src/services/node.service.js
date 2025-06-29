@@ -47,3 +47,43 @@ exports.completeNode = async (userId, nodeId) => {
     updatedRoadmapProgressPercentage: updatedProgressPercentage,
   };
 };
+
+
+exports.getNodeById = async (nodeId) => {
+  const node = await prisma.node.findUnique({
+    where: { id: nodeId },
+    include: {
+      roadmap: true,
+    },
+  });
+
+  if (!node) {
+    throw new Error('Node not found.');
+  }
+
+  return node;
+}
+
+exports.updateNode = async (nodeId, data) => {
+  const node = await prisma.node.findUnique({
+    where: { id: nodeId },
+    include: {
+      roadmap: true,
+    },
+  });
+
+  if (!node) {
+    throw new Error('Node not found.');
+  }
+  return await prisma.node.update({
+    where: { id: nodeId },
+    data: {
+      title: data.title ?? undefined,
+      description: data.description ?? undefined,
+      coverImage: data.coverImage ?? undefined,
+      is_deleted: data.is_deleted ?? undefined,
+      deleted_at: data.deleted_at ?? undefined,
+      suggestionLevel: data.suggestionLevel ?? undefined,
+    },
+  });
+}
