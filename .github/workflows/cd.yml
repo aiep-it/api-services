@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: SSH - Git pull BE
+      - name: SSH - Deploy Backend
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -31,26 +31,7 @@ jobs:
           script: |
             cd ${{ secrets.BE_PATH }}
             git pull
-
-
-      - name: SSH - Install dependencies
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ${{ secrets.BE_PATH }}
             npm install
-
-
-      - name: SSH - Deploy App
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ${{ secrets.BE_PATH }}
             npm run sync:pull
             pm2 restart api || pm2 start "npm run start" --name "api"
+
