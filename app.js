@@ -16,10 +16,11 @@ const webhookRouter = require('./src/routers/webhook.routes');
 const roadmapRoutes = require('./src/routers/roadmap.routes');
 const categoryRoutes = require('./src/routers/category.routes');
 const nodeRoutes = require('./src/routers/node.routes');
+const vocabRoutes = require('./src/routers/vocab.routes')
 
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: `http://localhost:${process.env.PORT}`,
   credentials: true,
 }));
 
@@ -39,6 +40,7 @@ app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 
 app.use('/categories', categoryRoutes);
 app.use('/node', nodeRoutes);
+app.use('/vocabs', vocabRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 

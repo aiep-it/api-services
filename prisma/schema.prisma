@@ -45,6 +45,7 @@ model Node {
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
   roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
+  vocabs           Vocab[]
   userNodeProgress UserNodeProgress[]
 
   @@index([roadmapId], map: "Node_roadmapId_fkey")
@@ -82,4 +83,21 @@ model Category {
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
   roadmaps    Roadmap[] @relation("CategoryToRoadmaps")
+}
+
+model Vocab {
+  id               String             @id @default(cuid())
+  nodeId           String
+  word             String
+  meaning          String
+  example          String?
+  imageUrl         String?
+  audioUrl         String?
+  is_know          Boolean            @default(false)
+  is_deleted       Boolean            @default(false)
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+  node             Node               @relation(fields: [nodeId], references: [id])
+
+  @@index([nodeId], map: "Vocab_nodeId_fkey")
 }
