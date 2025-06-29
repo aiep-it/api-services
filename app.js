@@ -42,7 +42,6 @@ app.use('/categories', categoryRoutes);
 app.use('/node', nodeRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  explorer: true,
   swaggerOptions: {
     url: '/swagger.json' 
   }
