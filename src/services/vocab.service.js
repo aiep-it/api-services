@@ -1,6 +1,15 @@
 // src/services/vocab.service.js
 const prisma = require('../../lib/prisma');
 
+exports.getVocabById = async (id) => {
+  const vocab = await prisma.vocab.findUnique({
+    where: { id, is_deleted: false }
+  });
+
+  if (!vocab) return null;
+  return vocab;
+};
+
 exports.getAllVocabs = async (page = 1, size = 10, search = '', filters = {}, sortFields = [{ field: 'created_at', order: 'desc' }]) => {
     const skip = (page - 1) * size;
     const where = {

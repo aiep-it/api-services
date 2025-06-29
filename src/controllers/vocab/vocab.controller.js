@@ -1,5 +1,20 @@
 const vocabService = require('../../services/vocab.service');
 
+exports.getVocabById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const vocab = await vocabService.getVocabById(id);
+    if (!vocab) {
+      return res.status(404).json({ message: 'Vocab not found.' });
+    }
+    res.status(200).json(vocab);
+  } catch (error) {
+    console.error('Error fetching vocab by ID:', error);
+    res.status(500).json({ message: 'Failed to retrieve vocab.' });
+  }
+};
+
 exports.getAllVocabs = async (req, res) => {
   try {
     const { page = 1, size = 10, search = '', sort, filters } = req.body;
