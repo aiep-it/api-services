@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://dxri5rqql2ood.cloudfront.net/api',
+        url: '/api',
         description: 'Development server',
       },
     ],

@@ -5,7 +5,7 @@ const doc = {
     title: 'My API',
     description: 'Automatically generated docs',
   },
-  host: 'https://dxri5rqql2ood.cloudfront.net/api',
+  host: '/api',
   schemes: ['http'],
 };
 
