@@ -44,11 +44,10 @@ app.use('/node', nodeRoutes);
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   explorer: true,
   swaggerOptions: {
-    url: '/api/swagger.json'  // 👈 fix base URL ở đây
+    url: '/api/swagger.json' 
   }
 }));
 
-// expose JSON spec tại đúng URL
 app.get('/api/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
