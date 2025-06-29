@@ -40,13 +40,19 @@ app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 
 app.use('/categories', categoryRoutes);
 app.use('/node', nodeRoutes);
+
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   explorer: true,
   swaggerOptions: {
-    url: '/api/swagger.json',
-  },
+    url: '/api/swagger.json'  // 👈 fix base URL ở đây
+  }
 }));
 
+// expose JSON spec tại đúng URL
+app.get('/api/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 
 db.getConnection()
