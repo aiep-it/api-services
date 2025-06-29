@@ -44,6 +44,8 @@ model Node {
   description      String?
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
+  coverImage       String?
+  suggestionLevel  String?
   roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
   vocabs           Vocab[]
   userNodeProgress UserNodeProgress[]
