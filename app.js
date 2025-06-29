@@ -9,6 +9,7 @@ const swaggerSpec = require('./swagger');
 const app = express();
 const db = require('./src/config/db');
 const version = process.env.API_VERSION || '1.0';
+const port = process.env.PORT || 3001;
 
 
 const userRoutes = require('./src/routers/user.routes');
@@ -19,7 +20,7 @@ const nodeRoutes = require('./src/routers/node.routes');
 
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: `http://localhost:${port}`,
   credentials: true,
 }));
 
