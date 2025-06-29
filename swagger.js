@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001',
+        url: 'https://dxri5rqql2ood.cloudfront.net/api',
         description: 'Development server',
       },
     ],
