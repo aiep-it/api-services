@@ -14,6 +14,34 @@ const { getAllVocabsSchema, createVocabSchema, updateVocabSchema } = require('..
 
 /**
  * @swagger
+ * /vocabs/{id}:
+ *   get:
+ *     summary: Get vocab detail
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the vocab to update
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Retrieve a vocab
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/vocabs'
+ */
+
+router.get('/:id', protect, authorizeRoles(['admin', 'staff']), vocabController.getVocabById);
+
+/**
+ * @swagger
  * /vocabs/search:
  *   post:
  *     summary: Get all vocabs (with pagination, search, filter, and sort)
