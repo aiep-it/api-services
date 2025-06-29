@@ -40,7 +40,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ${{ secret.BE_PATH }}
+            cd ${{ secrets.BE_PATH }}
             npm install
 
 
@@ -51,6 +51,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ${{ secret.BE_PATH }}
+            cd ${{ secrets.BE_PATH }}
             npm run sync:pull
             pm2 restart api || pm2 start "npm run start" --name "api"
