@@ -20,7 +20,8 @@ const nodeRoutes = require('./src/routers/node.routes');
 
 
 app.use(cors({
-  origin: `http://localhost:${port}`,
+  origin: `http://localhost:3000`, //default ferontend URL
+  
   credentials: true,
 }));
 
