@@ -9,6 +9,7 @@ const swaggerSpec = require('./swagger');
 const app = express();
 const db = require('./src/config/db');
 const version = process.env.API_VERSION || '1.0';
+const port = process.env.PORT || 3001;
 
 
 const userRoutes = require('./src/routers/user.routes');
@@ -20,7 +21,8 @@ const vocabRoutes = require('./src/routers/vocab.routes')
 
 
 app.use(cors({
-  origin: `http://localhost:3000`,
+  origin: `http://localhost:3000`, //default ferontend URL
+  
   credentials: true,
 }));
 
@@ -40,9 +42,17 @@ app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 
 app.use('/categories', categoryRoutes);
 app.use('/node', nodeRoutes);
-app.use('/vocabs', vocabRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    url: '/swagger.json' 
+  }
+}));
+
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 
 db.getConnection()
