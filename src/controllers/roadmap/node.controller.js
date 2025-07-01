@@ -36,3 +36,34 @@ exports.completeNode = async (req, res) => {
     res.status(500).json({ message: 'Failed to mark node as completed.' });
   }
 };
+
+exports.getNodeById = async (req, res) => {
+  const { nodeId } = req.params;
+
+  try {
+    const node = await nodeService.getNodeById(nodeId);
+    if (!node) {
+      return res.status(404).json({ message: 'Node not found.' });
+    }
+    res.status(200).json(node);
+  } catch (error) {
+    console.error('Error fetching node by ID:', error);
+    res.status(500).json({ message: 'Failed to retrieve node.' });
+  }
+}
+
+exports.updateNode = async (req, res) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+    return res.status(403).json({ message: 'Forbidden: Only admin or staff can update nodes.' });
+  }
+
+  const { nodeId } = req.params;
+
+  try {
+    const updatedNode = await nodeService.updateNode(nodeId, req.body);
+    res.status(200).json(updatedNode);
+  } catch (error) {
+    console.error('Error updating node:', error);
+    res.status(400).json({ message: 'Failed to update node.' });
+  }
+}
