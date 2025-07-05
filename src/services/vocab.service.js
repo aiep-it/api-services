@@ -17,9 +17,9 @@ exports.getAllVocabs = async (page = 1, size = 10, search = '', filters = {}, so
         ...filters,
         ...(search && {
             OR: [
-                { word: { contains: search, mode: 'insensitive' } },
-                { meaning: { contains: search, mode: 'insensitive' } },
-                { example: { contains: search, mode: 'insensitive' } }
+                { word: { contains: search } },
+                { meaning: { contains: search } },
+                { example: { contains: search } }
             ]
         })
     }
