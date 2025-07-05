@@ -47,7 +47,6 @@ model Node {
   coverImage       String?
   suggestionLevel  String?
   roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
-  vocabs           Vocab[]
   userNodeProgress UserNodeProgress[]
   Vocab            Vocab[]
 
@@ -89,7 +88,7 @@ model Category {
 }
 
 model Vocab {
-  id         String   @id
+  id         String   @id @default(cuid())
   nodeId     String
   word       String
   meaning    String
@@ -99,7 +98,7 @@ model Vocab {
   is_know    Boolean  @default(false)
   is_deleted Boolean  @default(false)
   created_at DateTime @default(now())
-  updated_at DateTime
+  updated_at DateTime @default(now())
   Node       Node     @relation(fields: [nodeId], references: [id])
 
   @@index([nodeId], map: "Vocab_nodeId_fkey")
