@@ -16,6 +16,7 @@ model User {
   role                String?               @default("user")
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
+  Exercise            Exercise[]
   userNodeProgress    UserNodeProgress[]
   UserRoadmapBookmark UserRoadmapBookmark[]
 }
@@ -46,6 +47,7 @@ model Node {
   updated_at       DateTime           @updatedAt
   coverImage       String?
   suggestionLevel  String?
+  status           NodeStatus         @default(INIT)
   roadmap          Roadmap            @relation(fields: [roadmapId], references: [id])
   userNodeProgress UserNodeProgress[]
   Vocab            Vocab[]
@@ -98,8 +100,52 @@ model Vocab {
   is_know    Boolean  @default(false)
   is_deleted Boolean  @default(false)
   created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  updated_at DateTime
   Node       Node     @relation(fields: [nodeId], references: [id])
 
   @@index([nodeId], map: "Vocab_nodeId_fkey")
+}
+
+model Exercise {
+  id           String                @id
+  userId       String
+  timeStarted  DateTime
+  topic        String
+  timeEnded    DateTime?
+  exerciseType Exercise_exerciseType
+  User         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Question     Question[]
+
+  @@index([userId], map: "userId")
+}
+
+model Question {
+  id                String                @id
+  question          String
+  answer            String
+  exerciseId        String
+  isCorrect         Boolean?
+  options           Json?
+  percentageCorrect Float?
+  questionType      Question_questionType
+  userAnswer        String
+  Exercise          Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([exerciseId], map: "exerciseId")
+}
+
+enum NodeStatus {
+  INIT
+  SETTUPED
+  REMOVED
+}
+
+enum Exercise_exerciseType {
+  mcq
+  open_ended
+}
+
+enum Question_questionType {
+  mcq
+  open_ended
 }

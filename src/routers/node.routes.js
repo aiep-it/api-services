@@ -97,6 +97,8 @@ router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(cr
 
 router.get('/:nodeId', nodeController.getNodeById);
 
+router.get('/list/:roadmapId', nodeController.getNodesByRoadmapId); //TODO pagging request
+
 router.put('/:nodeId', protect, authorizeRoles(['admin', 'staff']), validateRequest(updateNodeSchema), nodeController.updateNode);
 
 module.exports = router;
