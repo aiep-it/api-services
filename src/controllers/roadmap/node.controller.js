@@ -52,6 +52,34 @@ exports.getNodeById = async (req, res) => {
   }
 }
 
+exports.getNodesByRoadmapId = async (req, res) => {
+  const { roadmapId } = req.params;
+
+  try {
+    const roadmap = await roadmapService.getRoadmapById(roadmapId);
+    if (!roadmap) {
+      return res.status(404).json({ message: 'Roadmap not found.' });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const orderBy = req.query.orderBy || 'createdAt';
+    const skip = (page - 1) * limit;
+
+    const paggingRequest = {
+      page,
+      limit,
+      skip,
+      orderBy
+    }
+    const nodes = await nodeService.getByRoadMapId(roadmapId, paggingRequest);
+    res.status(200).json(nodes);
+  } catch (error) {
+    console.error('Error fetching nodes by roadmap ID:', error);
+    res.status(500).json({ message: 'Failed to retrieve nodes.' });
+  }
+}
+
 exports.updateNode = async (req, res) => {
   if (req.user.role !== 'admin' && req.user.role !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can update nodes.' });

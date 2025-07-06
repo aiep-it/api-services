@@ -1,10 +1,11 @@
 // src/services/node.service.js
 const prisma = require('../../lib/prisma');
 const { calculateUserRoadmapProgress } = require('../utils/roadmap.utils');
+const { NodeStatus } = require('@prisma/client')
 
 exports.createNode = async ({ roadmapId, title, description }) => {
   return await prisma.node.create({
-    data: { roadmapId, title, description },
+    data: { roadmapId, title, description, status: NodeStatus.INIT },
   });
 };
 
@@ -64,6 +65,21 @@ exports.getNodeById = async (nodeId) => {
   return node;
 }
 
+exports.getByRoadMapId = async (roadmapId, paggingRequest) => {
+  const nodes = await prisma.node.findMany({
+    where: { roadmapId },
+    include: {
+      roadmap: true,
+    },
+  });
+
+  if (!nodes || nodes.length === 0) {
+    throw new Error('No nodes found for this roadmap.');
+  }
+
+  return nodes;
+}
+
 exports.updateNode = async (nodeId, data) => {
   const node = await prisma.node.findUnique({
     where: { id: nodeId },
@@ -84,6 +100,7 @@ exports.updateNode = async (nodeId, data) => {
       is_deleted: data.is_deleted ?? undefined,
       deleted_at: data.deleted_at ?? undefined,
       suggestionLevel: data.suggestionLevel ?? undefined,
+      status: NodeStatus.SETTUPED
     },
   });
 }
