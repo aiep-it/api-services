@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 // Schema validate create
-const createNodeSchema = Joi.object({
+const createTopicSchema = Joi.object({
   title: Joi.string().min(1).max(30).required().messages({
     "string.base": `"name" should be a type of 'text'`,
     "string.empty": `"name" cannot be an empty field`,
@@ -17,7 +17,7 @@ const createNodeSchema = Joi.object({
 });
 
 
-const updateNodeSchema = Joi.object({
+const updateTopicSchema = Joi.object({
     title: Joi.string().min(1).max(30).required().messages({
       "string.base": `"name" should be a type of 'text'`,
       "string.empty": `"name" cannot be an empty field`,
@@ -32,6 +32,6 @@ const updateNodeSchema = Joi.object({
     }),
   });
 module.exports = {
-  createNodeSchema,
-  updateNodeSchema
+  createTopicSchema,
+  updateTopicSchema
 };

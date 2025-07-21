@@ -16,7 +16,7 @@ const userRoutes = require('./src/routers/user.routes');
 const webhookRouter = require('./src/routers/webhook.routes');
 const roadmapRoutes = require('./src/routers/roadmap.routes');
 const categoryRoutes = require('./src/routers/category.routes');
-const nodeRoutes = require('./src/routers/node.routes');
+const topicRoutes = require('./src/routers/topic.routes.js');
 const vocabRoutes = require('./src/routers/vocab.routes')
 
 
@@ -41,7 +41,7 @@ app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRouter);
 app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 
 app.use('/categories', categoryRoutes);
-app.use('/node', nodeRoutes);
+app.use('/topic', topicRoutes);
 app.use('/vocabs', vocabRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {

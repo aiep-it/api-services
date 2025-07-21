@@ -1,6 +1,6 @@
 const express = require('express');
 const roadmapController = require('../controllers/roadmap/roadmap.controller');
-const nodeController = require('../controllers/roadmap/node.controller');
+const topicController = require('../controllers/topic/topic.controller');
 const bookmarkController = require('../controllers/roadmap/bookmark.controller');
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 const validateRequest = require('../middleware/validateRequest');
@@ -112,24 +112,24 @@ router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), roadmapContro
 
 /**
  * @swagger
- * /roadmaps/nodes/{nodeId}/complete:
+ * /roadmaps/topics/{topicId}/complete:
  *   post:
- *     summary: Mark a node as complete
+ *     summary: Mark a topic as complete
  *     tags: [Roadmaps]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: nodeId
+ *       - name: topicId
  *         in: path
  *         required: true
- *         description: The ID of the node
+ *         description: The ID of the topic
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Node marked as complete
+ *         description: Topic marked as complete
  */
-router.post('/nodes/:nodeId/complete', protect, nodeController.completeNode);
+router.post('/topics/:topicId/complete', protect, topicController.completeTopic);
 
 // Uncomment if needed
 // router.post('/nodes', protect, authorizeRoles(['admin', 'staff']), nodeController.createNode);
