@@ -5,28 +5,23 @@ const prisma = require('../../lib/prisma');
  * Tính phần trăm tiến độ học roadmap của user
  */
 exports.calculateUserRoadmapProgress = async (userId, roadmapId) => {
-  const totalNodes = await prisma.node.count({
+  const totalTopics = await prisma.topic.count({
     where: { roadmapId },
   });
 
-  if (totalNodes === 0) return 0;
+  if (totalTopics === 0) return 0;
 
-  const completedNodes = await prisma.userNodeProgress.count({
+  const completedTopics = await prisma.userTopicProgress.count({
     where: {
       userId,
-      nodeId: {
-        in: (
-          await prisma.node.findMany({
-            where: { roadmapId },
-            select: { id: true },
-          })
-        ).map((node) => node.id),
-      },
       isCompleted: true,
+      topic: {
+        roadmapId: roadmapId,
+      },
     },
   });
 
-  return (completedNodes / totalNodes) * 100;
+  return (completedTopics / totalTopics) * 100;
 };
 
 /**
