@@ -6,10 +6,11 @@ exports.createCategory = async (req, res) => {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can create categories.' });
   }
 
-  const { name, type, description, order } = req.body;
-  if (!name || !type) {
-    return res.status(400).json({ message: 'Name and type are required.' });
-  }
+  const type = "?"
+  const { name,  description, order } = req.body;
+  // if (!name || !type) {
+  //   return res.status(400).json({ message: 'Name and type are required.' });
+  // }
 
   try {
     const category = await categoryService.createCategory({ name, type, description, order });

@@ -3,12 +3,12 @@ const router = express.Router();
 const vocabController = require('../controllers/vocab/vocab.controller');
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 const validateRequest = require('../middleware/validateRequest');
-const { getAllVocabsSchema, createVocabSchema, updateVocabSchema } = require('../validations/vocabRequest');
+const { getAllVocabsSchema, createVocabSchema, updateVocabSchema, getVocabsByTopicIdSchema } = require('../validations/vocabRequest');
 
 /**
  * @swagger
  * tags:
- *   name: Vocab
+ *   name: Vocabs
  *   description: Vocabulary management
  */
 
@@ -109,7 +109,7 @@ router.post('/search', protect, authorizeRoles(['admin', 'staff']), validateRequ
  *               - word
  *               - meaning
  *             properties:
- *               nodeId:
+ *               topicId:
  *                 type: string
  *               word:
  *                 type: string
@@ -165,7 +165,7 @@ router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(cr
  *               is_know:
  *                 type: boolean
  *                 default: false
- *               nodeId:
+ *               topicId:
  *                 type: string
  *     responses:
  *       200:
@@ -194,4 +194,63 @@ router.put('/:id', protect, authorizeRoles(['admin', 'staff']), validateRequest(
  */
 router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), vocabController.deleteVocab);
 
+/**
+ * @swagger
+ * /vocabs/topic/{topicId}:
+ *   post:
+ *     summary: Get all vocabs by topic ID with pagination, search, filter, and sort
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: topicId
+ *         required: true
+ *         description: The ID of the topic
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               page:
+ *                 type: integer
+ *                 default: 1
+ *                 description: Page number
+ *               size:
+ *                 type: integer
+ *                 default: 10
+ *                 description: Number of items per page
+ *               search:
+ *                 type: string
+ *                 description: Search keyword (applied to word, meaning, example)
+ *               sort:
+ *                 type: array
+ *                 description: Sort conditions
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     field:
+ *                       type: string
+ *                       example: created_at
+ *                     order:
+ *                       type: string
+ *                       enum: [asc, desc]
+ *                       example: desc
+ *               filters:
+ *                 type: object
+ *                 description: "Key-value filter object (e.g., { is_know: true })"
+ *                 default:
+ *                   is_know: false
+ *     responses:
+ *       200:
+ *         description: A paginated list of vocabs for the given topic
+ */
+router.post('/topic/:topicId', protect, authorizeRoles(['admin', 'staff']), vocabController.getVocabsByTopicId);
+
+
+router.post('/ai/gen', protect, authorizeRoles(['admin', 'staff']), vocabController.genVocabsByAIAssistant);
 module.exports = router;

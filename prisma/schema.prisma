@@ -8,50 +8,56 @@ datasource db {
 }
 
 model User {
-  id                   String               @id @default(uuid())
-  clerkId              String               @unique
-  email                String               @unique
-  firstName            String?
-  lastName             String?
-  role                 String?              @default("user")
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  Exercise             Exercise[]
-  userTopicProgress    UserTopicProgress[]
-  UserRoadmapBookmark  UserRoadmapBookmark[]
+  id                  String                @id @default(uuid())
+  clerkId             String?               @unique
+  email               String?               @unique
+  firstName           String?
+  lastName            String?
+  role                String                @default("user")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  address             String?
+  fullName            String?
+  parentName          String?
+  parentPhone         String?
+  password            String?
+  username            String?               @unique
+  Exercise            Exercise[]
+  UserRoadmapBookmark UserRoadmapBookmark[]
+  userTopicProgress   UserTopicProgress[]
 }
 
 model Roadmap {
-  id                   String               @id @default(cuid())
-  name                 String
-  is_deleted           Boolean              @default(false)
-  deleted_at           DateTime?
-  created_at           DateTime             @default(now())
-  updated_at           DateTime             @updatedAt
-  categoryId           String?
-  isNew                Boolean              @default(false)
-  description          String?
-  topics               Topic[]
-  category             Category?            @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
-  UserRoadmapBookmark  UserRoadmapBookmark[]
+  id                  String                @id @default(cuid())
+  name                String
+  is_deleted          Boolean               @default(false)
+  deleted_at          DateTime?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  categoryId          String?
+  isNew               Boolean               @default(false)
+  description         String?
+  category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
+  topics              Topic[]
+  UserRoadmapBookmark UserRoadmapBookmark[]
 
   @@index([categoryId], map: "Roadmap_categoryId_fkey")
 }
 
 model Topic {
-  id                  String             @id @default(cuid())
-  roadmapId           String
-  title               String
-  description         String?
-  created_at          DateTime           @default(now())
-  updated_at          DateTime           @updatedAt
-  coverImage          String?
-  suggestionLevel     String?
-  status              TopicStatus         @default(INIT)
-  Document            Document[]
-  roadmap             Roadmap            @relation(fields: [roadmapId], references: [id])
-  userTopicProgress   UserTopicProgress[]
-  Vocab               Vocab[]
+  id                String              @id @default(cuid())
+  roadmapId         String
+  title             String
+  description       String?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  coverImage        String?
+  suggestionLevel   String?
+  status            TopicStatus         @default(INIT)
+  Document          Document[]
+  roadmap           Roadmap             @relation(fields: [roadmapId], references: [id])
+  userTopicProgress UserTopicProgress[]
+  Vocab             Vocab[]
 
   @@index([roadmapId], map: "Topic_roadmapId_fkey")
 }
