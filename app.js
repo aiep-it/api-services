@@ -3,8 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const { clerkMiddleware } = require('@clerk/express');
 require('dotenv').config();
+require('./src/config/geminiClient.js'); 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
+
 
 const app = express();
 const db = require('./src/config/db');

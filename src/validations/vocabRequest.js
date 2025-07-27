@@ -8,7 +8,7 @@ const vocabBaseSchema = {
   imageUrl: Joi.string().uri().allow(''),
   audioUrl: Joi.string().uri().allow(''),
   is_know: Joi.boolean(),
-  nodeId: Joi.string().required()
+  topicId: Joi.string().required()
 }
 
 // Schema valid sort for get all vocabs req
@@ -53,8 +53,17 @@ const createVocabSchema = Joi.object(vocabBaseSchema)
 // Schema valid req for update vocab
 const updateVocabSchema = Joi.object(vocabBaseSchema)
 
+const getVocabsByTopicIdSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  size: Joi.number().integer().min(1).max(100).default(10),
+  search: Joi.string().allow('').default(''),
+  sort: Joi.array().items(sortFieldSchema).default([{ field: 'created_at', order: 'desc' }]),
+  filters: filterSchema.default({})
+})
+
 module.exports = {
   getAllVocabsSchema,
   createVocabSchema,
-  updateVocabSchema
+  updateVocabSchema,
+  getVocabsByTopicIdSchema
 }
