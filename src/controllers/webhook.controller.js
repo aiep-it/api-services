@@ -106,6 +106,23 @@ const webhookHandler = async (req, res) => {
           createdAt: new Date(), 
         },
       });
+
+      // Create a default "My Word Space" roadmap for the new user
+      const wordSpace = await prisma.roadmap.create({
+        data: {
+          name: 'My Word Space',
+          isWordSpace: true,
+          userId: user.id,
+        },
+      });
+
+      // Bookmark the new roadmap for the user
+      await prisma.userRoadmapBookmark.create({
+        data: {
+          userId: user.id,
+          roadmapId: wordSpace.id,
+        },
+      });
       console.log('User created/synced successfully:', { clerkId: user.clerkId, email: user.email, role: user.role });
       return res.status(200).json({ message: 'User created in database' });
     } catch (err) {
