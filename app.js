@@ -20,6 +20,7 @@ const roadmapRoutes = require('./src/routers/roadmap.routes');
 const categoryRoutes = require('./src/routers/category.routes');
 const topicRoutes = require('./src/routers/topic.routes.js');
 const vocabRoutes = require('./src/routers/vocab.routes')
+const aiRoutes = require('./src/routers/ai.routes')
 
 
 app.use(cors({
@@ -45,6 +46,7 @@ app.use('/roadmaps', roadmapRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/topic', topicRoutes);
 app.use('/vocabs', vocabRoutes);
+app.use('/ai', aiRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   swaggerOptions: {

@@ -9,7 +9,9 @@ let _model = null;
 
 function initializeGeminiModel() {
   if (!_model) {
-    const genAI = new GoogleGenerativeAI(API_KEY);
+//     const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const geminiVision = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const genAI = new GoogleGenerativeAI(API_KEY);
     _model = genAI.getGenerativeModel({ model: MODEL_NAME });
     console.log(`[Gemini] Model '${MODEL_NAME}' initialized once.`);
   }
