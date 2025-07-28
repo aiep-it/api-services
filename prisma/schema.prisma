@@ -22,10 +22,10 @@ model User {
   parentPhone         String?
   password            String?
   username            String?               @unique
-  Exercise            Exercise[]
   UserRoadmapBookmark UserRoadmapBookmark[]
   userTopicProgress   UserTopicProgress[]
   roadmap             Roadmap?
+  Exercise            Exercise[]
 }
 
 model Roadmap {
@@ -62,6 +62,7 @@ model Topic {
   roadmap           Roadmap             @relation(fields: [roadmapId], references: [id])
   userTopicProgress UserTopicProgress[]
   Vocab             Vocab[]
+  Exercise          Exercise[]
 
   @@index([roadmapId], map: "Topic_roadmapId_fkey")
 }
@@ -117,34 +118,6 @@ model Vocab {
   @@index([topicId], map: "Vocab_topicId_fkey")
 }
 
-model Exercise {
-  id           String                @id
-  userId       String
-  timeStarted  DateTime
-  topic        String
-  timeEnded    DateTime?
-  exerciseType Exercise_exerciseType
-  User         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Question     Question[]
-
-  @@index([userId], map: "userId")
-}
-
-model Question {
-  id                String                @id
-  question          String
-  answer            String
-  exerciseId        String
-  isCorrect         Boolean?
-  options           Json?
-  percentageCorrect Float?
-  questionType      Question_questionType
-  userAnswer        String
-  Exercise          Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-
-  @@index([exerciseId], map: "exerciseId")
-}
-
 model Document {
   id          String          @id
   name        String
@@ -159,20 +132,39 @@ model Document {
   @@index([topicId], map: "Document_topicId_fkey")
 }
 
+model Exercise {
+  id            String       @id @default(cuid())
+  type          ExerciseType
+  content       String       @db.Text
+  options       Json?
+  correctAnswer String
+  hint          String?
+  difficulty    Difficulty?
+  topicId       String
+  topic         Topic        @relation(fields: [topicId], references: [id])
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+
+  @@index([topicId])
+  @@index([userId])
+}
+
+enum ExerciseType {
+  text
+  image
+  audio
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
 enum TopicStatus {
   INIT
   SETTUPED
   REMOVED
-}
-
-enum Exercise_exerciseType {
-  mcq
-  open_ended
-}
-
-enum Question_questionType {
-  mcq
-  open_ended
 }
 
 enum Document_status {

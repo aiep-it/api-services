@@ -8,7 +8,7 @@
     "generate": "prisma generate",
     "migrate": "prisma generate & prisma migrate deploy & prisma db push",
     "studio": "prisma generate & prisma studio",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "sync:pull": "prisma db pull  & prisma generate",
     "sync:push": "prisma db push"
   },
@@ -37,6 +37,8 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "prisma": "^6.9.0"
+    "jest": "^29.7.0",
+    "prisma": "^6.9.0",
+    "supertest": "^7.1.4"
   }
 }

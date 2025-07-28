@@ -77,6 +77,40 @@ exports.suggestTopics = async (topic) => {
   }
 };
 
+exports.generateExercises = async (vocabList) => {
+  if (!AI_Assistant) {
+    throw new Error(
+      "Gemini model has not been initialized. Call initializeGeminiModel() first."
+    );
+  }
+  if (!vocabList || vocabList.length === 0) {
+    throw new Error(
+      "A list of vocabulary words is required to generate exercises."
+    );
+  }
+
+  const userRequest =
+    AI_CONFIG.ADMIN_ASSISTANT.EXERCISE_CONFIG.userContextFormat(vocabList);
+
+  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.EXERCISE_CONFIG.sys_promt;
+
+  try {
+    const result = await AI_Assistant.generateContent({
+      contents: [
+        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
+      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.EXERCISE_CONFIG.generationConfig,
+    });
+
+    const response = result.response;
+    const jsonText = response.text();
+    const parsedData = JSON.parse(jsonText);
+    return parsedData;
+  } catch (error) {
+    console.error("Error generating exercises:", error);
+    return [];
+  }
+};
+
 function safeJsonParse(text) {
   try {
     // Cố gắng phân tích cú pháp trực tiếp

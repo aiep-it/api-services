@@ -22,6 +22,7 @@ const topicRoutes = require('./src/routers/topic.routes.js');
 const vocabRoutes = require('./src/routers/vocab.routes')
 const aiRoutes = require('./src/routers/ai.routes')
 const wordspaceRoutes = require('./src/routers/wordspace.routes');
+const exerciseRoutes = require('./src/routers/exercise.routes');
 
 
 app.use(cors({
@@ -49,6 +50,7 @@ app.use('/topic', topicRoutes);
 app.use('/vocabs', vocabRoutes);
 app.use('/ai', aiRoutes);
 app.use('/wordspace', wordspaceRoutes);
+app.use('/exercises', exerciseRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   swaggerOptions: {
