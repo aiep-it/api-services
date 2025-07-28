@@ -1,4 +1,60 @@
-export const ADMIN_ASSISTANT = {
+exports.ADMIN_ASSISTANT = {
+  VISION_CONFIG: {
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            word: { type: "STRING" },
+            meaning: { type: "STRING" },
+            example: { type: "STRING" },
+            imageUrl: { type: "STRING" },
+            audioUrl: { type: "STRING" },
+            is_know: { type: "BOOLEAN" },
+          },
+          propertyOrdering: [
+            "word",
+            "meaning",
+            "example",
+            "imageUrl",
+            "audioUrl",
+            "is_know",
+          ],
+        },
+      },
+    },
+    sys_promt: `You are an AI assistant specialized in generating English vocabulary for kids, with Vietnamese meanings and simple example sentences. Your task is to generate a JSON array of vocabulary objects based on the provided format.
+
+            For each vocabulary word, ensure the following structure:
+            {
+            "word": "string",
+            "meaning": "string",
+            "example": "string",
+            "imageUrl": "string",
+            "audioUrl": "string",
+            "is_know": false
+    }`,
+    // userContextFormat: (topicTitle) => `
+    //     - word: The English word.
+    //     - meaning: The Vietnamese translation of the word.
+    //     - example: A simple, clear example sentence using the word, appropriate for children.
+    //     - imageUrl: Provide a placeholder image URL. Use a format like "https://placehold.co/200x200/cccccc/000000?text=[Word]" where [Word] is the actual word.
+    //     - audioUrl: Provide a placeholder audio URL. Use a format like "https://example.com/audio/[word].mp3" where [word] is the actual word in lowercase.
+    //     - is_know: Always set this to false.
+
+    //     Generate a JSON array of vocabulary words on the topic of ${topicTitle}.`,
+    userContextFormat: (topicTitle) => `
+        - word: The English word.
+        - meaning: The Vietnamese translation of the word.
+        - example: A simple, clear example sentence using the word, appropriate for children.
+        - imageUrl: Provide a real link search on internet for an image of the word
+        - audioUrl: Provide a real link search on internet for an audio of the word
+        - is_know: Always set this to false.
+
+      Generate a JSON array of vocabulary words on the topic of ${topicTitle}.`,
+  },
   VOCAB_CONFIG: {
     generationConfig: {
       responseMimeType: "application/json",
