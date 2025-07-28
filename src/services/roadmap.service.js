@@ -17,7 +17,7 @@ exports.createRoadmap = async (data) => {
 
 exports.getAllRoadmaps = async (userId) => {
   const roadmaps = await prisma.roadmap.findMany({
-    where: { is_deleted: false },
+    where: { is_deleted: false, isWordSpace: false },
   });
 
   return await Promise.all(

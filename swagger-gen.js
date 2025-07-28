@@ -10,6 +10,6 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const endpointsFiles = ['./src/routers/*.js']; // hoặc glob pattern
+const endpointsFiles = ['./src/routers/*.js', './src/controllers/**/*.js']; // hoặc glob pattern
 
 swaggerAutogen(outputFile, endpointsFiles, doc);

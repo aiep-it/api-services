@@ -25,6 +25,7 @@ model User {
   Exercise            Exercise[]
   UserRoadmapBookmark UserRoadmapBookmark[]
   userTopicProgress   UserTopicProgress[]
+  roadmap             Roadmap?
 }
 
 model Roadmap {
@@ -37,6 +38,9 @@ model Roadmap {
   categoryId          String?
   isNew               Boolean               @default(false)
   description         String?
+  isWordSpace         Boolean               @default(false)
+  userId              String?               @unique
+  user                User?                 @relation(fields: [userId], references: [id])
   category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
   topics              Topic[]
   UserRoadmapBookmark UserRoadmapBookmark[]
