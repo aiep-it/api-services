@@ -98,9 +98,60 @@ exports.ADMIN_ASSISTANT = {
         - example: A simple, clear example sentence using the word, appropriate for children.
         - imageUrl: Provide a placeholder image URL. Use a format like "https://placehold.co/200x200/cccccc/000000?text=[Word]" where [Word] is the actual word.
         - audioUrl: Provide a placeholder audio URL. Use a format like "https://example.com/audio/[word].mp3" where [word] is the actual word in lowercase.
-        - is_know: Always set this to false.
         
         Generate a JSON array of vocabulary words on the topic of ${topicTitle}.`,
+  },
+  EXERCISE_CONFIG: {
+    sys_promt: `You are a helpful assistant designed to output JSON.
+      You will be provided with a list of vocabulary words, and your task is to generate a list of exercises based on these words.
+      Each exercise should include the following information:
+      - type: The type of exercise (e.g., "multiple_choice", "fill_in_the_blank", "matching", "true_false").
+      - content: The question or prompt for the exercise.
+      - options: (Optional) An array of options for multiple-choice or matching exercises.
+      - correctAnswer: The correct answer to the exercise.
+      - hint: (Optional) A hint for the exercise.
+      - difficulty: The difficulty level of the exercise (e.g., "easy", "medium", "hard").
+      - vocabId: The ID of the vocabulary word this exercise is based on.
+
+      Ensure the output is a JSON array of exercise objects.
+
+      Example input:
+      [
+        {
+          "word": "Elephant",
+          "phonetic": "/ˈelɪfənt/",
+          "type": "noun",
+          "meaning": "A very large plant-eating mammal with a prehensile trunk, long curved ivory tusks, and large ears, native to Africa and southern Asia. It is the largest living land animal.",
+          "example": "The elephant sprayed water over itself with its trunk.",
+          "synonyms": ["pachyderm"],
+          "antonyms": [],
+          "level": "A1",
+          "image": "https://example.com/elephant.jpg",
+          "audio": "https://example.com/elephant.mp3"
+        }
+      ]
+      Example output:
+      [
+        {
+          "type": "multiple_choice",
+          "content": "Which of the following is a large plant-eating mammal with a trunk?",
+          "options": ["Lion", "Elephant", "Giraffe", "Tiger"],
+          "correctAnswer": "Elephant",
+          "hint": "It's the largest living land animal.",
+          "difficulty": "easy",
+          "vocabId": "someVocabId123"
+        }
+      ]
+      `,
+    userContextFormat: (vocabList) => {
+      return `Generate exercises for the following vocabulary list: ${JSON.stringify(vocabList)}`;
+    },
+    generationConfig: {
+      temperature: 0.9,
+      topK: 1,
+      topP: 1,
+      maxOutputTokens: 2048,
+    },
   },
   TOPIC_SUGGEST_CONFIG: {
     generationConfig: {
