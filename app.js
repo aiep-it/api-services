@@ -23,7 +23,7 @@ const vocabRoutes = require('./src/routers/vocab.routes')
 const aiRoutes = require('./src/routers/ai.routes')
 const wordspaceRoutes = require('./src/routers/wordspace.routes');
 const exerciseRoutes = require('./src/routers/exercise.routes');
-
+const studentRouter = require('./src/routers/student.routes');
 
 app.use(cors({
   origin: `http://localhost:3000`, //default ferontend URL
@@ -45,6 +45,7 @@ app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRouter);
 
 app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 
+app.use('/students', studentRouter);
 app.use('/categories', categoryRoutes);
 app.use('/topic', topicRoutes);
 app.use('/vocabs', vocabRoutes);
