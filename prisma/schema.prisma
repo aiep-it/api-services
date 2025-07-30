@@ -22,7 +22,7 @@ model User {
   parentPhone         String?
   password            String?
   username            String?               @unique
-  UserRoadmapBookmark UserRoadmapBookmark[]
+  UserRoadmap         UserRoadmap[]
   userTopicProgress   UserTopicProgress[]
   roadmap             Roadmap?
   Exercise            Exercise[]
@@ -43,7 +43,7 @@ model Roadmap {
   user                User?                 @relation(fields: [userId], references: [id])
   category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
   topics              Topic[]
-  UserRoadmapBookmark UserRoadmapBookmark[]
+  UserRoadmap         UserRoadmap[]
 
   @@index([categoryId], map: "Roadmap_categoryId_fkey")
 }
@@ -79,7 +79,7 @@ model UserTopicProgress {
   @@index([topicId], map: "UserTopicProgress_topicId_fkey")
 }
 
-model UserRoadmapBookmark {
+model UserRoadmap {
   userId    String
   roadmapId String
   createdAt DateTime @default(now())
@@ -87,7 +87,7 @@ model UserRoadmapBookmark {
   user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, roadmapId])
-  @@index([roadmapId], map: "UserRoadmapBookmark_roadmapId_fkey")
+  @@index([roadmapId], map: "UserRoadmap_roadmapId_fkey")
 }
 
 model Category {
