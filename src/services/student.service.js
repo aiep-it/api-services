@@ -112,4 +112,54 @@ async  createMultipleStudents(studentList) {
   async deleteStudent(id) {
     return prisma.user.delete({ where: { id } });
   },
+
+  async enrollRoadmap(userId, roadmapId) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const roadmap = await prisma.roadmap.findUnique({ 
+      where: { id: roadmapId },
+      include: { topics: true }
+    });
+    if (!roadmap) {
+      throw new Error("Roadmap not found");
+    }
+
+    const existingEnrollment = await prisma.UserRoadmap.findUnique({
+      where: {
+        userId_roadmapId: {
+          userId,
+          roadmapId,
+        },
+      },
+    });
+
+    if (existingEnrollment) {
+      throw new Error("User is already enrolled in this roadmap");
+    }
+
+    const enrollment = await prisma.UserRoadmap.create({
+      data: {
+        userId,
+        roadmapId,
+      },
+    });
+
+    const topicIds = roadmap.topics.map(topic => topic.id);
+
+    const userTopicProgress = topicIds.map(topicId => ({
+      userId,
+      topicId,
+      isCompleted: false,
+    }));
+
+    await prisma.userTopicProgress.createMany({
+      data: userTopicProgress,
+      skipDuplicates: true, 
+    });
+
+    return enrollment;
+  },
 };
