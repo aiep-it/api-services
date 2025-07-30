@@ -114,3 +114,13 @@ exports.toggleBookmarkRoadmap = async (req, res) => {
     res.status(500).json({ message: 'Failed to toggle bookmark status.' });
   }
 };
+// src/controllers/user/user.controller.js
+exports.getAllUsersWithClerkId = async (req, res) => {
+  try {
+    const users = await userService.getUsersWithClerkId();
+    res.status(200).json(users);
+  } catch (err) {
+    console.error('Error fetching users with Clerk ID:', err);
+    res.status(500).json({ error: 'Failed to fetch users with Clerk ID' });
+  }
+};
