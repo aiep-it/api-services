@@ -33,7 +33,7 @@ const filterSchema = Joi.object({
     gte: Joi.date(),
     lte: Joi.date()
   }).optional(),
-  nodeId: Joi.string().optional(),
+  topicId: Joi.string().optional(),
   word: Joi.string().optional(),
   example: Joi.string().optional()
 })

@@ -30,7 +30,7 @@ exports.getLearningRoadmaps = async (req, res) => {
   if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    const bookmarks = await prisma.userRoadmapBookmark.findMany({
+    const bookmarks = await prisma.UserRoadmap.findMany({
       where: { userId },
       include: {
         roadmap: {
@@ -83,7 +83,7 @@ exports.toggleBookmarkRoadmap = async (req, res) => {
 
   try {
     if (bookmark) { // Nếu muốn bookmark (thêm vào)
-      await prisma.userRoadmapBookmark.create({
+      await prisma.UserRoadmap.create({
         data: {
           userId: userId,
           roadmapId: id,
@@ -91,7 +91,7 @@ exports.toggleBookmarkRoadmap = async (req, res) => {
       });
       res.status(200).json({ message: "Roadmap bookmarked successfully." });
     } else { // Nếu muốn unbookmark (xóa khỏi)
-      await prisma.userRoadmapBookmark.delete({
+      await prisma.UserRoadmap.delete({
         where: {
           userId_roadmapId: {
             userId: userId,

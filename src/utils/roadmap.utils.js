@@ -30,7 +30,7 @@ exports.calculateUserRoadmapProgress = async (userId, roadmapId) => {
 exports.getUserBookmarkStatus = async (userId, roadmapId) => {
   if (!userId) return false;
 
-  const bookmark = await prisma.userRoadmapBookmark.findUnique({
+  const bookmark = await prisma.UserRoadmap.findUnique({
     where: {
       userId_roadmapId: {
         userId,

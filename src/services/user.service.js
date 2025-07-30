@@ -43,7 +43,7 @@ exports.getUserMetrics = async (userId) => {
     },
   });
 
-  const projectsFinished = await prisma.userRoadmapBookmark.count({
+  const projectsFinished = await prisma.UserRoadmap.count({
     where: { userId },
   });
 
