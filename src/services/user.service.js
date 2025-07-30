@@ -53,8 +53,37 @@ exports.getUserMetrics = async (userId) => {
 };
 
 exports.updateUserMetadata = async (userId, role) => {
-  await clerkClient.users.updateUserMetadata(userId, {
+  // 🔍 1. Tìm clerkId từ userId local
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { clerkId: true },
+  });
+
+  if (!user || !user.clerkId) {
+    throw new Error('Clerk ID not found for this user');
+  }
+
+  // ✅ 2. Gọi Clerk API update
+  await clerkClient.users.updateUserMetadata(user.clerkId, {
     publicMetadata: { role },
   });
-  return { message: 'Metadata updated' };
+
+  // ✅ 3. Đồng bộ local DB nếu cần
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role },
+  });
+
+  return { message: 'Metadata & role updated successfully' };
 };
+
+
+// src/services/user.service.js
+exports.getUsersWithClerkId = async () => {
+  return prisma.user.findMany({
+    where: {
+      clerkId: {
+        not: null,
+      },
+    }
+})};

@@ -113,6 +113,51 @@ router.post('/:roadmapId/bookmark', protect, bookmarkController.toggleBookmarkRo
  */
 router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
 
+/**
+ * @swagger
+ * /users/with-clerk-id:
+ *   get:
+ *     summary: Get all users with Clerk ID
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users who have Clerk ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     description: User's internal ID
+ *                   clerkId:
+ *                     type: string
+ *                     description: User's Clerk ID
+ *                   email:
+ *                     type: string
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   role:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Failed to fetch users
+ */
+
+router.get('/with-clerk-id', userController.getAllUsersWithClerkId);
+
 // 7. Admin: Lấy user theo Clerk ID
 /**
  * @swagger
@@ -136,5 +181,6 @@ router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
  *         description: Forbidden
  */
 router.get('/:id', protect, authorizeRoles(['admin']), userController.getUserByClerkId);
+
 
 module.exports = router;
