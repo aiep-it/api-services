@@ -8,42 +8,48 @@ datasource db {
 }
 
 model User {
-  id                  String                @id @default(uuid())
-  clerkId             String?               @unique
-  email               String?               @unique
-  firstName           String?
-  lastName            String?
-  role                String                @default("user")
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  address             String?
-  fullName            String?
-  parentName          String?
-  parentPhone         String?
-  password            String?
-  username            String?               @unique
-  UserRoadmap         UserRoadmap[]
-  userTopicProgress   UserTopicProgress[]
-  roadmap             Roadmap?
-  Exercise            Exercise[]
+  id                String              @id @default(uuid())
+  clerkId           String?             @unique
+  email             String?             @unique
+  firstName         String?
+  lastName          String?
+  role              String              @default("user")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  address           String?
+  fullName          String?
+  parentName        String?
+  parentPhone       String?
+  password          String?
+  username          String?             @unique
+  classId           String?
+  ClassTeacher      ClassTeacher[]
+  Exercise          Exercise[]
+  roadmap           Roadmap?
+  Class             Class?              @relation(fields: [classId], references: [id])
+  UserRoadmap       UserRoadmap[]
+  userTopicProgress UserTopicProgress[]
+
+  @@index([classId], map: "User_classId_fkey")
 }
 
 model Roadmap {
-  id                  String                @id @default(cuid())
-  name                String
-  is_deleted          Boolean               @default(false)
-  deleted_at          DateTime?
-  created_at          DateTime              @default(now())
-  updated_at          DateTime              @updatedAt
-  categoryId          String?
-  isNew               Boolean               @default(false)
-  description         String?
-  isWordSpace         Boolean               @default(false)
-  userId              String?               @unique
-  user                User?                 @relation(fields: [userId], references: [id])
-  category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
-  topics              Topic[]
-  UserRoadmap         UserRoadmap[]
+  id           String         @id @default(cuid())
+  name         String
+  is_deleted   Boolean        @default(false)
+  deleted_at   DateTime?
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  categoryId   String?
+  isNew        Boolean        @default(false)
+  description  String?
+  isWordSpace  Boolean        @default(false)
+  userId       String?        @unique
+  ClassRoadmap ClassRoadmap[]
+  category     Category?      @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
+  user         User?          @relation(fields: [userId], references: [id])
+  topics       Topic[]
+  UserRoadmap  UserRoadmap[]
 
   @@index([categoryId], map: "Roadmap_categoryId_fkey")
 }
@@ -59,10 +65,10 @@ model Topic {
   suggestionLevel   String?
   status            TopicStatus         @default(INIT)
   Document          Document[]
+  Exercise          Exercise[]
   roadmap           Roadmap             @relation(fields: [roadmapId], references: [id])
   userTopicProgress UserTopicProgress[]
   Vocab             Vocab[]
-  Exercise          Exercise[]
 
   @@index([roadmapId], map: "Topic_roadmapId_fkey")
 }
@@ -134,19 +140,56 @@ model Document {
 
 model Exercise {
   id            String       @id @default(cuid())
-  type          ExerciseType
-  content       String       @db.Text
-  options       Json?
-  correctAnswer String
-  hint          String?
-  difficulty    Difficulty?
-  topicId       String
-  topic         Topic        @relation(fields: [topicId], references: [id])
   userId        String
+  content       String       @db.Text
+  correctAnswer String
+  difficulty    Difficulty?
+  hint          String?
+  options       Json?
+  topicId       String
+  type          ExerciseType
+  topic         Topic        @relation(fields: [topicId], references: [id])
   user          User         @relation(fields: [userId], references: [id])
 
   @@index([topicId])
   @@index([userId])
+}
+
+model Class {
+  id           String         @id
+  name         String
+  code         String         @unique
+  description  String?
+  level        Class_level
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  ClassRoadmap ClassRoadmap[]
+  ClassTeacher ClassTeacher[]
+  User         User[]
+}
+
+model ClassRoadmap {
+  id         String   @id
+  classId    String
+  roadmapId  String
+  assignedAt DateTime @default(now())
+  Class      Class    @relation(fields: [classId], references: [id])
+  Roadmap    Roadmap  @relation(fields: [roadmapId], references: [id])
+
+  @@unique([classId, roadmapId])
+  @@index([roadmapId], map: "ClassRoadmap_roadmapId_fkey")
+}
+
+model ClassTeacher {
+  id         String   @id
+  teacherId  String
+  classId    String
+  assignedAt DateTime @default(now())
+  Class      Class    @relation(fields: [classId], references: [id])
+  User       User     @relation(fields: [teacherId], references: [id])
+
+  @@unique([teacherId, classId])
+  @@index([classId], map: "ClassTeacher_classId_fkey")
 }
 
 enum ExerciseType {
@@ -170,4 +213,10 @@ enum TopicStatus {
 enum Document_status {
   ACTIVATE
   DISABLE
+}
+
+enum Class_level {
+  STARTERS
+  MOVERS
+  FLYERS
 }

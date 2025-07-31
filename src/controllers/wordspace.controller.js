@@ -154,3 +154,24 @@ exports.addVocab = async (req, res) => {
     res.status(500).json({ error: 'Failed to add vocab' });
   }
 };
+
+exports.addMultipleVocabs = async (req, res) => {
+  try {
+    const { topicId } = req.params;
+    const { vocabs } = req.body;
+
+    const vocabData = vocabs.map((v) => ({
+      ...v,
+      topicId,
+    }));
+
+    const result = await prisma.vocab.createMany({
+      data: vocabData,
+      skipDuplicates: true,
+    });
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add multiple vocabs' });
+  }
+};
