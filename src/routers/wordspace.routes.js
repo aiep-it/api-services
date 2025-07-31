@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
@@ -17,6 +16,10 @@ router.use(protect);
  *     responses:
  *       200:
  *         description: The user's wordspace
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Wordspace'
  *       401:
  *         description: Unauthorized
  */
@@ -35,10 +38,7 @@ router.get('/', wordspaceController.getWordSpace);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
+ *             $ref: '#/components/schemas/Topic'
  *     responses:
  *       201:
  *         description: Topic added successfully
@@ -68,12 +68,7 @@ router.post('/topics', wordspaceController.addTopic);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               word:
- *                 type: string
- *               meaning:
- *                 type: string
+ *             $ref: '#/components/schemas/Vocab'
  *     responses:
  *       201:
  *         description: Vocabulary added successfully
@@ -103,17 +98,7 @@ router.post('/topics/:topicId/vocabs', wordspaceController.addVocab);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               vocabs:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     word:
- *                       type: string
- *                     meaning:
- *                       type: string
+ *             $ref: '#/components/schemas/MultipleVocabs'
  *     responses:
  *       201:
  *         description: Vocabularies added successfully
