@@ -12,8 +12,12 @@ const options = {
     },
     servers: [
       {
-        url: '/api',
+        url: '/',
         description: 'Development server',
+      },
+      {
+        url: '/api',
+        description: 'Server hosted',
       },
     ],
     components: {
