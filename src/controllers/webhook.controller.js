@@ -6,8 +6,6 @@ require('dotenv').config();
 const webhookHandler = async (req, res) => {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
-
-
   if (!WEBHOOK_SECRET) {
     console.error('Webhook secret not configured in environment variables.');
     return res.status(400).json({ error: 'Webhook secret not configured' });

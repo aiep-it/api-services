@@ -105,3 +105,17 @@ exports.getVocabsByTopicId = async (topicId, page = 1, size = 10, search = '', f
     empty: vocabs.length === 0
   };
 };
+
+exports.getAllVocabsByTopicId = async (topicId) => {
+  const vocabs = await prisma.vocab.findMany({
+    where: {
+      topicId,
+      is_deleted: false,
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  });
+
+  return vocabs;
+};

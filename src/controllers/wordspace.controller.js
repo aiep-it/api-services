@@ -71,18 +71,28 @@ exports.getWordSpace = async (req, res) => {
  *         description: Failed to add topic
  */
 exports.addTopic = async (req, res) => {
+  const user = req.user;
   try {
-    const userId = req.user.id;
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const userId = user.id;
     const { title, description } = req.body;
-    const wordSpace = await prisma.roadmap.findFirst({
+    let wordSpace = await prisma.roadmap.findFirst({
       where: {
-        userId,
+        userId: userId,
         isWordSpace: true,
       },
     });
 
     if (!wordSpace) {
-      return res.status(404).json({ error: 'Word space not found' });
+      wordSpace = await prisma.roadmap.create({
+        data: {
+          name: 'My Wordspace',
+          isWordSpace: true,
+          userId,
+        },
+      });
     }
 
     const topic = await prisma.topic.create({

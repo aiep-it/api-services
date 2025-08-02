@@ -251,6 +251,62 @@ router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), vocabControll
  */
 router.post('/topic/:topicId', protect, authorizeRoles(['admin', 'staff']), vocabController.getVocabsByTopicId);
 
+/**
+ * @swagger
+ * /vocabs/topic/{topicId}/all:
+ *   get:
+ *     summary: Get all vocabs by topic ID (no pagination)
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: topicId
+ *         required: true
+ *         description: The ID of the topic
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A list of all vocabs for the given topic
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/vocabs'
+ */
+router.get('/topic/:topicId/all', protect, authorizeRoles(['admin', 'staff', 'student']), vocabController.getAllVocabsByTopicId);
 
+
+
+/**
+ * @swagger
+ * /vocabs/ai/gen:
+ *   post:
+ *     summary: Generate vocabularies for a topic using AI
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - topicId
+ *             properties:
+ *               topicId:
+ *                 type: string
+ *                 description: The ID of the topic to generate vocabularies for
+ *     responses:
+ *       200:
+ *         description: Vocabs generated and saved successfully
+ *       400:
+ *         description: Bad request, such as missing topicId
+ *       404:
+ *         description: Topic not found
+ */
 router.post('/ai/gen', protect, authorizeRoles(['admin', 'staff']), vocabController.genVocabsByAIAssistant);
 module.exports = router;
