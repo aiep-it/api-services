@@ -50,7 +50,7 @@ app.use('/categories', categoryRoutes);
 app.use('/topic', topicRoutes);
 app.use('/vocabs', vocabRoutes);
 app.use('/ai', aiRoutes);
-app.use('/wordspace', wordspaceRoutes);
+app.use('/workspace', wordspaceRoutes);
 app.use('/exercises', exerciseRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {

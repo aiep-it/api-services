@@ -1,9 +1,14 @@
 // First, install the library: npm install @google/generative-ai
 
-const AI_Assistant = require("../config/geminiClient"); // Reuse the singleton
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { initializeGeminiModel, initializeImageModel, getGenAIInstance, getGenAIImageGenerator } = require("../config/geminiClient"); // Reuse the singleton
+const fs = require("node:fs");
+const { uploadFileToDirectus } = require("./directus.service");
+const AI_Assistant = initializeGeminiModel;
+const AI_Image_Assistant = initializeImageModel;
 const AI_CONFIG = require("../config/ai_config");
 
-exports.generateVocabularyData = async (topic) => {
+exports.generateVocabularyData = async (topic, wordsExist = []) => {
   if (!AI_Assistant) {
     throw new Error(
       "Gemini model has not been initialized. Call initializeGeminiModel() first."
@@ -197,6 +202,50 @@ exports.generateVocabFromImage = async (file) => {
       error
     );
     throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
+  }
+};
+
+
+
+exports.generateImageFromPrompt = async (prompt) => {
+  if (!prompt) {
+    throw new Error(
+      "Prompt is required to generate an image."
+    );
+  }
+
+  try {
+    const genAI = getGenAIImageGenerator();
+    const response = await genAI.models.generateImages({
+      model: 'imagen-3.0-generate-002', // Using the model defined in geminiClient.js
+      prompt: prompt,
+      config: {
+        numberOfImages: 1, // Generate one image for now
+      },
+    });
+
+    const generatedImage = response.generatedImages[0];
+    const imgBytes = generatedImage.image.imageBytes;
+    const buffer = Buffer.from(imgBytes, "base64");
+
+    const timestamp = Date.now();
+    const filename = `generated-image-${timestamp}.png`;
+    const filePath = `./uploads/${filename}`; // Save to the uploads directory
+
+    fs.writeFileSync(filePath, buffer);
+    console.log(`Generated image saved to: ${filePath}`);
+
+    // Upload to Directus
+    const directusFile = await uploadFileToDirectus({
+      buffer: buffer,
+      originalname: filename,
+      mimetype: "image/png", // Assuming PNG output
+    });
+
+    return { filename: filename, path: filePath, directusFileId: directusFile.id };
+  } catch (error) {
+    console.error("Error generating image from prompt:", error);
+    throw new Error(`Error generating image: ${error.message}`);
   }
 };
 
