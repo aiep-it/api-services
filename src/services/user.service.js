@@ -19,6 +19,23 @@ exports.getAllUsers = async () => {
     },
   });
 };
+// src/services/user.service.js
+exports.getAllTeachers = async () => {
+  return await prisma.user.findMany({
+    where: {
+      role: 'teacher',
+    },
+    select: {
+      id: true,
+      clerkId: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      fullName: true,
+      createdAt: true,
+    },
+  });
+};
 
 exports.getUserByClerkId = async (id) => {
   return await prisma.user.findUnique({
@@ -31,26 +48,26 @@ exports.getUserRoleByClerkId = async (clerkId) => {
   return user?.role || null;
 };
 
-exports.getUserMetrics = async (userId) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+// exports.getUserMetrics = async (userId) => {
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
 
-  const learntToday = await prisma.userNodeProgress.count({
-    where: {
-      userId,
-      isCompleted: true,
-      completedAt: { gte: today },
-    },
-  });
+//   const learntToday = await prisma.userNodeProgress.count({
+//     where: {
+//       userId,
+//       isCompleted: true,
+//       completedAt: { gte: today },
+//     },
+//   });
 
-  const projectsFinished = await prisma.userRoadmapBookmark.count({
-    where: { userId },
-  });
+//   const projectsFinished = await prisma.userRoadmapBookmark.count({
+//     where: { userId },
+//   });
 
-  const streak = 1;
+//   const streak = 1;
 
-  return { streak, learntToday, projectsFinished };
-};
+//   return { streak, learntToday, projectsFinished };
+// };
 
 exports.updateUserMetadata = async (userId, role) => {
   // 🔍 1. Tìm clerkId từ userId local

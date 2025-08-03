@@ -1,4 +1,5 @@
 const userService = require("../../services/student.service");
+const studentService = require("../../services/student.service");
 const { parseExcelFile } = require("../../utils/excel.helper");
 
 module.exports = {
@@ -74,5 +75,37 @@ async importStudentsExcel(req, res) {
       res.status(400).json({ error: err.message });
     }
   },
+
+  async enrollRoadmap(req, res, next) {
+    try {
+      const { roadmapId } = req.body;
+      const userId = req.user.id;
+
+      if (!roadmapId) {
+        return res.status(400).json({ message: 'Roadmap ID is required' });
+      }
+
+      const enrollment = await studentService.enrollRoadmap(userId, roadmapId);
+      res.status(201).json(enrollment);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
+
+exports.enrollRoadmap = async (req, res, next) => {
+  try {
+    const { roadmapId } = req.body;
+    const userId = req.user.id;
+
+    if (!roadmapId) {
+      return res.status(400).json({ message: 'Roadmap ID is required' });
+    }
+
+    const enrollment = await studentService.enrollRoadmap(userId, roadmapId);
+    res.status(201).json(enrollment);
+  } catch (error) {
+    next(error);
+  }
+};

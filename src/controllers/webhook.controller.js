@@ -117,7 +117,7 @@ const webhookHandler = async (req, res) => {
       });
 
       // Bookmark the new roadmap for the user
-      await prisma.userRoadmapBookmark.create({
+      await prisma.UserRoadmap.create({
         data: {
           userId: user.id,
           roadmapId: wordSpace.id,

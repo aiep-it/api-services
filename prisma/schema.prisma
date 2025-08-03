@@ -22,10 +22,51 @@ model User {
   parentPhone         String?
   password            String?
   username            String?               @unique
-  UserRoadmapBookmark UserRoadmapBookmark[]
+  classId             String?
+  class               Class?                @relation("ClassStudents", fields: [classId], references: [id])
+  teachingClasses     ClassTeacher[]
+  UserRoadmap         UserRoadmap[]
   userTopicProgress   UserTopicProgress[]
   roadmap             Roadmap?
   Exercise            Exercise[]
+}
+
+model Class {
+  id          String         @id @default(uuid())
+  name        String
+  code        String         @unique
+  description String?
+  level       ClassLevel
+
+  students    User[]         @relation("ClassStudents")
+  teachers    ClassTeacher[]
+  roadmaps    ClassRoadmap[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ClassTeacher {
+  id         String   @id @default(uuid())
+  teacherId  String
+  classId    String
+
+  teacher    User     @relation(fields: [teacherId], references: [id])
+  class      Class    @relation(fields: [classId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@unique([teacherId, classId])
+}
+
+model ClassRoadmap {
+  id         String   @id @default(uuid())
+  classId    String
+  roadmapId  String
+
+  class      Class    @relation(fields: [classId], references: [id])
+  roadmap    Roadmap  @relation(fields: [roadmapId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@unique([classId, roadmapId])
 }
 
 model Roadmap {
@@ -43,7 +84,8 @@ model Roadmap {
   user                User?                 @relation(fields: [userId], references: [id])
   category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
   topics              Topic[]
-  UserRoadmapBookmark UserRoadmapBookmark[]
+  UserRoadmap         UserRoadmap[]
+  classRoadmaps       ClassRoadmap[]
 
   @@index([categoryId], map: "Roadmap_categoryId_fkey")
 }
@@ -67,6 +109,17 @@ model Topic {
   @@index([roadmapId], map: "Topic_roadmapId_fkey")
 }
 
+model UserRoadmap {
+  userId    String
+  roadmapId String
+  createdAt DateTime @default(now())
+  roadmap   Roadmap  @relation(fields: [roadmapId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([userId, roadmapId])
+  @@index([roadmapId], map: "UserRoadmap_roadmapId_fkey")
+}
+
 model UserTopicProgress {
   userId      String
   topicId     String
@@ -77,17 +130,6 @@ model UserTopicProgress {
 
   @@id([userId, topicId])
   @@index([topicId], map: "UserTopicProgress_topicId_fkey")
-}
-
-model UserRoadmapBookmark {
-  userId    String
-  roadmapId String
-  createdAt DateTime @default(now())
-  roadmap   Roadmap  @relation(fields: [roadmapId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@id([userId, roadmapId])
-  @@index([roadmapId], map: "UserRoadmapBookmark_roadmapId_fkey")
 }
 
 model Category {
@@ -170,4 +212,10 @@ enum TopicStatus {
 enum Document_status {
   ACTIVATE
   DISABLE
+}
+
+enum ClassLevel {
+  STARTERS
+  MOVERS
+  FLYERS
 }
