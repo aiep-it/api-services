@@ -180,12 +180,11 @@ router.get('/teachers', userController.getAllTeachers);
  *       403:
  *         description: Forbidden
  */
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
-router.get('/:id', protect, authorizeRoles(['admin']), userController.getUserByClerkId);
-=======
+// router.get('/:id', protect, authorizeRoles(['admin']), userController.getUserByClerkId);
+// =======
 router.get('/:id', protect,  userController.getUserByClerkId);
->>>>>>> 3b5e47ef43ab1efd938fb611b20c95ca01883680
 
 
 module.exports = router;
