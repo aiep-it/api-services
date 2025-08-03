@@ -12,10 +12,100 @@ const options = {
     },
     servers: [
       {
-        url: '/api',
+        url: '/',
         description: 'Development server',
       },
+      {
+        url: '/api',
+        description: 'Server hosted',
+      },
     ],
+    components: {
+      schemas: {
+        Topic: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+            },
+            description: {
+              type: 'string',
+            },
+          },
+        },
+        Vocab: {
+          type: 'object',
+          properties: {
+            word: {
+              type: 'string',
+            },
+            meaning: {
+              type: 'string',
+            },
+            example: {
+              type: 'string',
+            },
+            imageUrl: {
+              type: 'string',
+            },
+            audioUrl: {
+              type: 'string',
+            },
+          },
+        },
+        MultipleVocabs: {
+          type: 'object',
+          properties: {
+            vocabs: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Vocab',
+              },
+            },
+          },
+        },
+        TopicWithVocabs: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+            },
+            title: {
+              type: 'string',
+            },
+            description: {
+              type: 'string',
+            },
+            Vocab: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Vocab',
+              },
+            },
+          },
+        },
+        Wordspace: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+            },
+            name: {
+              type: 'string',
+            },
+            isWordSpace: {
+              type: 'boolean',
+            },
+            topics: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/TopicWithVocabs',
+              },
+            },
+          },
+        },
+      },
+    },
   },
   apis: ['./src/routers/*.js'],
 };
