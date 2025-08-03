@@ -5,12 +5,61 @@ const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 const validateRequest = require('../middleware/validateRequest');
 const { getAllVocabsSchema, createVocabSchema, updateVocabSchema, getVocabsByTopicIdSchema } = require('../validations/vocabRequest');
 
+
+
+
 /**
  * @swagger
  * tags:
  *   name: Vocabs
  *   description: Vocabulary management
  */
+
+
+/**
+ * @swagger
+ * /vocabs/my-vocabs:
+ *   get:
+ *     summary: Get current user's vocabulary learning progress
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of vocabs with user's learning progress
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/my-vocabs', protect, vocabController.getMyVocabLearningProgress);
+
+/**
+ * @swagger
+ * /vocabs/mark-done/{vocabId}:
+ *   put:
+ *     summary: Mark a vocabulary as learned for the current user
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: vocabId
+ *         required: true
+ *         description: The ID of the vocabulary to mark as learned
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Vocabulary marked as learned successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Vocabulary or UserVocabProgress not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/mark-done/:vocabId', protect, vocabController.markVocabAsDone);
 
 /**
  * @swagger
@@ -309,4 +358,7 @@ router.get('/topic/:topicId/all', protect, authorizeRoles(['admin', 'staff', 'st
  *         description: Topic not found
  */
 router.post('/ai/gen', protect, authorizeRoles(['admin', 'staff']), vocabController.genVocabsByAIAssistant);
+
+
+
 module.exports = router;

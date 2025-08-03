@@ -155,3 +155,40 @@ exports.genVocabsByAIAssistant = async (req, res) => {
   }
 };
 
+exports.getMyVocabLearningProgress = async (req, res) => {
+  console.log("getMyVocabLearningProgress called");
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const result = await vocabService.getAllMyVocabs(user.id);
+    
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to retrieve vocabs.' });
+  }
+}
+
+exports.markVocabAsDone = async (req, res) => {
+  const { vocabId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const updatedProgress = await vocabService.markVocabAsLearned(vocabId, userId);
+
+    if (!updatedProgress) {
+      return res.status(404).json({ message: "Vocab or UserVocabProgress not found." });
+    }
+
+    res.status(200).json({ message: "Vocabulary marked as learned successfully", data: updatedProgress });
+  } catch (error) {
+    console.error("Error marking vocab as done:", error);
+    res.status(500).json({ message: "Failed to mark vocab as done." });
+  }
+};

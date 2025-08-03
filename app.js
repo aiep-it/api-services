@@ -20,7 +20,8 @@ const roadmapRoutes = require('./src/routers/roadmap.routes');
 const categoryRoutes = require('./src/routers/category.routes');
 const topicRoutes = require('./src/routers/topic.routes.js');
 const vocabRoutes = require('./src/routers/vocab.routes')
-const aiRoutes = require('./src/routers/ai.routes')
+const aiRoutes = require('./src/routers/ai.routes');
+const personalLearningRoutes = require('./src/routers/personal.learning.routes.js');
 const wordspaceRoutes = require('./src/routers/wordspace.routes');
 const exerciseRoutes = require('./src/routers/exercise.routes');
 const studentRouter = require('./src/routers/student.routes');
@@ -50,6 +51,7 @@ app.use('/categories', categoryRoutes);
 app.use('/topic', topicRoutes);
 app.use('/vocabs', vocabRoutes);
 app.use('/ai', aiRoutes);
+app.use('/personal-learning', personalLearningRoutes);
 app.use('/workspace', wordspaceRoutes);
 app.use('/exercises', exerciseRoutes);
 

@@ -30,6 +30,8 @@ model User {
   UserRoadmap       UserRoadmap[]
   userTopicProgress UserTopicProgress[]
 
+  userVocabProgress   UserVocabProgress[]
+
   @@index([classId], map: "User_classId_fkey")
 }
 
@@ -126,7 +128,24 @@ model Vocab {
   personalLearningId   String?
   personalLearning     PersonalLearning?    @relation(fields: [personalLearningId], references: [id])
 
+
+  userVocabProgress   UserVocabProgress[]
+
   @@index([topicId], map: "Vocab_topicId_fkey")
+}
+
+model UserVocabProgress {
+  id         String    @id @default(cuid())
+  is_learned    Boolean   @default(false)
+
+  vocabId    String
+  vocab       Vocab   @relation(fields: [vocabId], references: [id])
+
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@unique([userId, vocabId])
+
 }
 
 model PersonalLearning{
@@ -134,13 +153,15 @@ model PersonalLearning{
   userId        String
   topicId       String
 
-  imageUrl      String?
-  audioUrl      String?
+  image      String?
   title         String?
   description   String?
 
-  Topic         Topic     @relation(fields: [topicId], references: [id])
-  Vocab         Vocab[]
+  topic         Topic     @relation(fields: [topicId], references: [id])
+  vocabs        Vocab[]
+
+  @@index([topicId])
+  @@index([userId])
 }
 
 model Document {
@@ -152,7 +173,7 @@ model Document {
   created_at  DateTime        @default(now())
   updated_at  DateTime
   file        String
-  Topic       Topic           @relation(fields: [topicId], references: [id])
+  topic       Topic           @relation(fields: [topicId], references: [id])
 
   @@index([topicId], map: "Document_topicId_fkey")
 }

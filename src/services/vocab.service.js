@@ -119,3 +119,56 @@ exports.getAllVocabsByTopicId = async (topicId) => {
 
   return vocabs;
 };
+
+
+//TODO enhance vocab in road assigned
+exports.getAllMyVocabs = async (userId) => {
+  const vocabs = await prisma.vocab.findMany({
+    where: {
+      is_deleted: false,
+    },
+    include: {
+      userVocabProgress: {
+        where: {
+          userId: userId,
+        },
+        select: {
+          is_learned: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  });
+
+  return {
+    content: vocabs,
+    page: 1,
+    size: 10000,
+    totalElements: vocabs.length,
+    totalPages: 1,
+    first: 1,
+    last: 1,
+    empty: vocabs.length === 0
+  };
+};
+
+exports.markVocabAsLearned = async (vocabId, userId) => {
+  return prisma.userVocabProgress.upsert({
+    where: {
+      userId_vocabId: {
+        userId: userId,
+        vocabId: vocabId,
+      },
+    },
+    update: {
+      is_learned: true,
+    },
+    create: {
+      userId: userId,
+      vocabId: vocabId,
+      is_learned: true,
+    },
+  });
+};
