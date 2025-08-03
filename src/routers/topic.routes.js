@@ -97,8 +97,27 @@ router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(cr
 
 router.get('/:topicId', topicController.getTopicById);
 
-router.get('/list/:roadmapId', topicController.getTopicsByRoadmapId); //TODO pagging request
+/**
+ * @swagger
+ * /topics/list/{roadmapId}:
+ *   get:
+ *     summary: Get topics by roadmap ID
+ *     tags: [Topics]
+ *     parameters:
+ *       - in: path
+ *         name: roadmapId
+ *         required: true
+ *         description: The ID of the roadmap
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A list of topics for the given roadmap
+ *       404:
+ *         description: Roadmap not found
+ */
+router.get('/list/:roadmapId', topicController.getTopicsByRoadmapId);
 
-router.put('/:topicId', protect, authorizeRoles(['admin', 'staff']), validateRequest(updateTopicSchema), topicController.updateTopic);
+router.put('/:topicId', protect, validateRequest(updateTopicSchema), topicController.updateTopic);
 
 module.exports = router;

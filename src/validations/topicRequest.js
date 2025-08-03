@@ -30,6 +30,7 @@ const updateTopicSchema = Joi.object({
     coverImage: Joi.string().optional().messages({
       "string.base": `"coverImage" should be a type of 'text'`,
     }),
+    isMyWorkspace: Joi.boolean().optional(),
   });
 module.exports = {
   createTopicSchema,

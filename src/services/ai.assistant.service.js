@@ -21,7 +21,7 @@ exports.generateVocabularyData = async (topic, wordsExist = []) => {
   }
 
   const userRequest =
-    AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(topic);
+    AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(topic, wordsExist);
 
   const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
 
@@ -302,3 +302,42 @@ exports.generatePersonalLearningFromImage = async (file) => {
       throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
     }
   };
+
+exports.generateQuiz = async (topicTitle, difficulty = "beginner", listVocabs = [], contextContent = "") => {
+  if (!AI_Assistant) {
+    throw new Error(
+      "Gemini model has not been initialized. Call initializeGeminiModel() first."
+    );
+  }
+  if (!topicTitle) {
+    throw new Error(
+      "Topic title is required to generate a quiz."
+    );
+  }
+
+  const userRequest =
+    AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.userContextFormat(
+      topicTitle,
+      difficulty,
+      listVocabs,
+      contextContent
+    );
+
+  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.sys_prompt;
+
+  try {
+    const result = await AI_Assistant.generateContent({
+      contents: [
+        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
+      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.generationConfig,
+    });
+
+    const response = result.response;
+    const jsonText = response.text();
+    const parsedData = JSON.parse(jsonText);
+    return parsedData;
+  } catch (error) {
+    console.error("Error generating quiz:", error);
+    return [];
+  }
+};
