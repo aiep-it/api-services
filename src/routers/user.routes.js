@@ -135,6 +135,6 @@ router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
  *       403:
  *         description: Forbidden
  */
-router.get('/:id', protect, authorizeRoles(['admin']), userController.getUserByClerkId);
+router.get('/:id', protect,  userController.getUserByClerkId);
 
 module.exports = router;

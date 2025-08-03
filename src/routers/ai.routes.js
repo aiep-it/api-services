@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { generateVocabFromImageHandler, generateImageFromPromptHandler } = require('../controllers/ai.controller');
+const { generateVocabFromImageHandler, generateImageFromPromptHandler, generateQuizHandler } = require('../controllers/ai.controller');
 const {generatePersonalLearningFromImageHandler} = require('../controllers/personal.learning.controller');
 const multer = require('multer');
 
@@ -149,4 +149,78 @@ router.post(
   '/generate-image-from-prompt',
   generateImageFromPromptHandler
 );
+
+/**
+ * @swagger
+ * /ai/generate-quiz:
+ *   post:
+ *     summary: Generate a quiz question based on a topic and vocabulary
+ *     tags: [AI]
+ *     description: Generates a single quiz question using AI, based on a provided topic, difficulty, and optional vocabulary list.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - topicTitle
+ *             properties:
+ *               topicTitle:
+ *                 type: string
+ *                 description: The title of the topic for the quiz question.
+ *                 example: "Animals"
+ *               difficulty:
+ *                 type: string
+ *                 description: The difficulty level of the quiz question.
+ *                 enum: ["beginner", "intermediate", "advanced"]
+ *                 default: "beginner"
+ *               listVocabs:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: An optional list of vocabulary words to prioritize in the quiz.
+ *                 example: ["cat", "dog", "bird"]
+ *               contextContent:
+ *                 type: string
+ *                 description: Optional additional context for the quiz question.
+ *                 example: "Focus on farm animals."
+ *     responses:
+ *       '200':
+ *         description: Successfully generated quiz question.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Quiz question generated successfully"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       content:
+ *                         type: string
+ *                       correctAnswer:
+ *                         type: string
+ *                       difficulty:
+ *                         type: string
+ *                       hint:
+ *                         type: string
+ *                       options:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *       '400':
+ *         description: Missing required parameters.
+ *       '500':
+ *         description: Internal server error.
+ */
+router.post(
+  '/suggest-quiz',
+  generateQuizHandler
+);
+
 module.exports = router;

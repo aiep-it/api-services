@@ -295,4 +295,89 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
 
             **Ultimate Goal**: To provide detailed, easy-to-understand, practically deployable vocabulary learning roadmaps that positively support children's language development through a clear, step-by-step learning flow.`,
   },
+
+  QUIZZ_CONFIG: {
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          content: { type: "STRING" },
+          correctAnswer: { type: "STRING" },
+          difficulty: { type: "STRING" }, // e.g., "beginner"
+          hint: { type: "STRING" },
+          options: {
+            type: "ARRAY",
+            items: { type: "STRING" },
+          },
+        },
+        propertyOrdering: [
+          "content",
+          "correctAnswer",
+          "difficulty",
+          "hint",
+          "options",
+        ],
+      },
+    },
+    sys_prompt: `You are an AI assistant specialized in generating English learning exercises for children. Your task is to create JSON-formatted questions that are educational, engaging, and age-appropriate.
+  
+  Each question must include:
+  - A simple and clear question in English (content).
+  - A correct answer.
+  - A difficulty level (beginner).
+  - A helpful hint suitable for children.
+  - An array of options (if applicable based on type).
+  
+  The output must follow the structure below:
+  {
+    "content": "What is the capital of Vietnam?",
+    "correctAnswer": "Hanoi",
+    "difficulty": "beginner",
+    "hint": "It's a famous city in the north.",
+    "options": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"],
+  }
+  
+  Only return a valid JSON array of question objects. Do not add explanations or text outside the JSON.`,
+
+    userContextFormat: (
+      topicTitle,
+      difficulty = "beginner",
+      listVocabs = [],
+      contextContent = ""
+    ) => `
+  Topic: ${topicTitle}
+  Difficulty: ${difficulty}
+  Context: ${contextContent}
+  
+  Below is a list of vocabulary words that should be prioritized or included when relevant:
+  ${
+    listVocabs.length > 0
+      ? listVocabs.map((v) => `- ${v}`).join("\n")
+      : "- (No specific vocab provided)"
+  }
+  
+  Your task:
+  Generate 1 child-friendly English quiz question that is fun, age-appropriate, and educational. Use the context and vocabulary to shape the question. Keep the language simple and the question format suitable for young English learners.
+  
+  Return only a JSON array containing one object with the following fields:
+  - content: the quiz question
+  - correctAnswer: the correct answer to the question
+  - difficulty: ${difficulty}
+  - hint: a simple and helpful clue
+  - options: 3–4 answer choices, including the correct one
+  
+  Example structure:
+  [
+    {
+      "content": "What is the capital of Vietnam?",
+      "correctAnswer": "Hanoi",
+      "difficulty": "beginner",
+      "hint": "It's a famous city in the north.",
+      "options": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"],
+    }
+  ]
+  Do not include any explanation or formatting outside the JSON array.
+  `,
+  },
 };
