@@ -249,33 +249,56 @@ exports.generateImageFromPrompt = async (prompt) => {
   }
 };
 
-// exports.generateVocabFromImage = async (file) => {
 
-//    if (!AI_Assistant) {
-//     throw new Error(
-//       "Gemini model has not been initialized. Call initializeGeminiModel() first."
-//     );
-//   }
-//   if (!file || !file.buffer) {
-//     throw new Error("Image file is required to generate vocabulary.");
-//   }
-//   // const model = geminiVision.getGenerativeModel({
-//   //   model: 'gemini-pro-vision',
-//   // });
-//   const prompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
-//   const image = {
-//     inlineData: {
-//       data: file.buffer.toString('base64'),
-//       mimeType: file.mimetype,
-//     },
-//   };
-//   const result = await AI_Assistant.generateContent([prompt, image]);
-//   const response = await result.response;
 
-//   console.log('Response from Gemini:', response);
-//   const text = response.text();
-
-//   console.log('Response text:', JSON.parse(text));
-//   return JSON.parse(text);
-
-// };
+exports.generatePersonalLearningFromImage = async (file) => {
+    if (!AI_Assistant) {
+      throw new Error(
+        "Gemini model has not been initialized. Call initializeGeminiModel() first."
+      );
+    }
+    if (!file || !file.buffer || !file.mimetype) {
+      throw new Error(
+        "File with image data is required to generate vocabulary."
+      );
+    }
+    if (!AI_CONFIG?.ADMIN_ASSISTANT?.VISION_CONFIG?.sys_promt) {
+      throw new Error("System prompt is not defined in AI_CONFIG.");
+    }
+  
+    const prompt = AI_CONFIG.ADMIN_ASSISTANT.VISION_CONFIG.userContextFormat('');
+  
+    const imagePart = {
+      inlineData: {
+        data: file.buffer.toString("base64"),
+        mimeType: file.mimetype,
+      },
+    };
+  
+    try {
+      const result = await AI_Assistant.generateContent([prompt, imagePart]);
+      console.log("Text Generating", result.response?.candidates);
+      const response = await result.response;
+      const responseText = response.text();
+  
+      const vocabularyObject = safeJsonParse(responseText);
+  
+      if (!vocabularyObject) {
+        throw new Error(
+          "Phân tích cú pháp JSON từ phản hồi của Gemini thất bại. Phản hồi không chứa JSON hợp lệ."
+        );
+      }
+  
+      console.log(
+        "Đối tượng từ vựng đã phân tích cú pháp thành công:",
+        vocabularyObject
+      );
+      return vocabularyObject;
+    } catch (error) {
+      console.error(
+        "Đã xảy ra lỗi khi gọi API Gemini hoặc xử lý phản hồi:",
+        error
+      );
+      throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
+    }
+  };
