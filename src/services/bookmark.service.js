@@ -2,19 +2,19 @@ const prisma = require('../../lib/prisma');
 
 exports.toggleBookmark = async (userId, roadmapId, bookmark) => {
   try {
-    const existing = await prisma.userRoadmapBookmark.findUnique({
+    const existing = await prisma.UserRoadmap.findUnique({
       where: { userId_roadmapId: { userId, roadmapId } },
     });
 
     if (bookmark && !existing) {
-      await prisma.userRoadmapBookmark.create({
+      await prisma.UserRoadmap.create({
         data: { userId, roadmapId },
       });
       return { message: 'Roadmap bookmarked successfully.' };
     }
 
     if (!bookmark && existing) {
-      await prisma.userRoadmapBookmark.delete({
+      await prisma.UserRoadmap.delete({
         where: { userId_roadmapId: { userId, roadmapId } },
       });
       return { message: 'Roadmap unbookmarked successfully.' };

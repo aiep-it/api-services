@@ -157,7 +157,7 @@ router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
  */
 
 router.get('/with-clerk-id', userController.getAllUsersWithClerkId);
-
+router.get('/teachers', userController.getAllTeachers); 
 // 7. Admin: Lấy user theo Clerk ID
 /**
  * @swagger
@@ -180,6 +180,7 @@ router.get('/with-clerk-id', userController.getAllUsersWithClerkId);
  *       403:
  *         description: Forbidden
  */
+
 router.get('/:id', protect, authorizeRoles(['admin']), userController.getUserByClerkId);
 
 
