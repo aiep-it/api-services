@@ -1,9 +1,14 @@
 // First, install the library: npm install @google/generative-ai
 
-const AI_Assistant = require("../config/geminiClient"); // Reuse the singleton
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { initializeGeminiModel, initializeImageModel, getGenAIInstance, getGenAIImageGenerator } = require("../config/geminiClient"); // Reuse the singleton
+const fs = require("node:fs");
+const { uploadFileToDirectus } = require("./directus.service");
+const AI_Assistant = initializeGeminiModel;
+const AI_Image_Assistant = initializeImageModel;
 const AI_CONFIG = require("../config/ai_config");
 
-exports.generateVocabularyData = async (topic) => {
+exports.generateVocabularyData = async (topic, wordsExist = []) => {
   if (!AI_Assistant) {
     throw new Error(
       "Gemini model has not been initialized. Call initializeGeminiModel() first."
@@ -16,7 +21,7 @@ exports.generateVocabularyData = async (topic) => {
   }
 
   const userRequest =
-    AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(topic);
+    AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(topic, wordsExist);
 
   const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
 
@@ -200,33 +205,139 @@ exports.generateVocabFromImage = async (file) => {
   }
 };
 
-// exports.generateVocabFromImage = async (file) => {
 
-//    if (!AI_Assistant) {
-//     throw new Error(
-//       "Gemini model has not been initialized. Call initializeGeminiModel() first."
-//     );
-//   }
-//   if (!file || !file.buffer) {
-//     throw new Error("Image file is required to generate vocabulary.");
-//   }
-//   // const model = geminiVision.getGenerativeModel({
-//   //   model: 'gemini-pro-vision',
-//   // });
-//   const prompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
-//   const image = {
-//     inlineData: {
-//       data: file.buffer.toString('base64'),
-//       mimeType: file.mimetype,
-//     },
-//   };
-//   const result = await AI_Assistant.generateContent([prompt, image]);
-//   const response = await result.response;
 
-//   console.log('Response from Gemini:', response);
-//   const text = response.text();
+exports.generateImageFromPrompt = async (prompt) => {
+  if (!prompt) {
+    throw new Error(
+      "Prompt is required to generate an image."
+    );
+  }
 
-//   console.log('Response text:', JSON.parse(text));
-//   return JSON.parse(text);
+  try {
+    const genAI = getGenAIImageGenerator();
+    const response = await genAI.models.generateImages({
+      model: 'imagen-3.0-generate-002', // Using the model defined in geminiClient.js
+      prompt: prompt,
+      config: {
+        numberOfImages: 1, // Generate one image for now
+      },
+    });
 
-// };
+    const generatedImage = response.generatedImages[0];
+    const imgBytes = generatedImage.image.imageBytes;
+    const buffer = Buffer.from(imgBytes, "base64");
+
+    const timestamp = Date.now();
+    const filename = `generated-image-${timestamp}.png`;
+    const filePath = `./uploads/${filename}`; // Save to the uploads directory
+
+    fs.writeFileSync(filePath, buffer);
+    console.log(`Generated image saved to: ${filePath}`);
+
+    // Upload to Directus
+    const directusFile = await uploadFileToDirectus({
+      buffer: buffer,
+      originalname: filename,
+      mimetype: "image/png", // Assuming PNG output
+    });
+
+    return { filename: filename, path: filePath, directusFileId: directusFile.id };
+  } catch (error) {
+    console.error("Error generating image from prompt:", error);
+    throw new Error(`Error generating image: ${error.message}`);
+  }
+};
+
+
+
+exports.generatePersonalLearningFromImage = async (file) => {
+    if (!AI_Assistant) {
+      throw new Error(
+        "Gemini model has not been initialized. Call initializeGeminiModel() first."
+      );
+    }
+    if (!file || !file.buffer || !file.mimetype) {
+      throw new Error(
+        "File with image data is required to generate vocabulary."
+      );
+    }
+    if (!AI_CONFIG?.ADMIN_ASSISTANT?.VISION_CONFIG?.sys_promt) {
+      throw new Error("System prompt is not defined in AI_CONFIG.");
+    }
+  
+    const prompt = AI_CONFIG.ADMIN_ASSISTANT.VISION_CONFIG.userContextFormat('');
+  
+    const imagePart = {
+      inlineData: {
+        data: file.buffer.toString("base64"),
+        mimeType: file.mimetype,
+      },
+    };
+  
+    try {
+      const result = await AI_Assistant.generateContent([prompt, imagePart]);
+      console.log("Text Generating", result.response?.candidates);
+      const response = await result.response;
+      const responseText = response.text();
+  
+      const vocabularyObject = safeJsonParse(responseText);
+  
+      if (!vocabularyObject) {
+        throw new Error(
+          "Phân tích cú pháp JSON từ phản hồi của Gemini thất bại. Phản hồi không chứa JSON hợp lệ."
+        );
+      }
+  
+      console.log(
+        "Đối tượng từ vựng đã phân tích cú pháp thành công:",
+        vocabularyObject
+      );
+      return vocabularyObject;
+    } catch (error) {
+      console.error(
+        "Đã xảy ra lỗi khi gọi API Gemini hoặc xử lý phản hồi:",
+        error
+      );
+      throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
+    }
+  };
+
+exports.generateQuiz = async (topicTitle, difficulty = "beginner", listVocabs = [], contextContent = "") => {
+  if (!AI_Assistant) {
+    throw new Error(
+      "Gemini model has not been initialized. Call initializeGeminiModel() first."
+    );
+  }
+  if (!topicTitle) {
+    throw new Error(
+      "Topic title is required to generate a quiz."
+    );
+  }
+
+  const userRequest =
+    AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.userContextFormat(
+      topicTitle,
+      difficulty,
+      listVocabs,
+      contextContent
+    );
+
+  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.sys_prompt;
+
+  try {
+    const result = await AI_Assistant.generateContent({
+      contents: [
+        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
+      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.generationConfig,
+    });
+
+    const response = result.response;
+    const jsonText = response.text();
+    const parsedData = JSON.parse(jsonText);
+    return parsedData;
+  } catch (error) {
+    console.error("Error generating quiz:", error);
+    return [];
+  }
+};

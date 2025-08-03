@@ -81,14 +81,12 @@ exports.getTopicsByRoadmapId = async (req, res) => {
 }
 
 exports.updateTopic = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
-    return res.status(403).json({ message: 'Forbidden: Only admin or staff can update topics.' });
-  }
-
   const { topicId } = req.params;
 
+  const {isMyWorkspace, ...data} = req.body
+
   try {
-    const updatedTopic = await topicService.updateTopic(topicId, req.body);
+    const updatedTopic = await topicService.updateTopic(topicId, data);
     res.status(200).json(updatedTopic);
   } catch (error) {
     console.error('Error updating topic:', error);

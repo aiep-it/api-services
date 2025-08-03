@@ -3,57 +3,67 @@ exports.ADMIN_ASSISTANT = {
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: {
-        type: "ARRAY",
-        items: {
-          type: "OBJECT",
-          properties: {
-            word: { type: "STRING" },
-            meaning: { type: "STRING" },
-            example: { type: "STRING" },
-            imageUrl: { type: "STRING" },
-            audioUrl: { type: "STRING" },
-            is_know: { type: "BOOLEAN" },
+        type: "OBJECT",
+        properties: {
+          title: { type: "STRING" },
+          description: { type: "STRING" },
+
+          vocabs: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                word: { type: "STRING" },
+                meaning: { type: "STRING" },
+                example: { type: "STRING" },
+                imageUrl: { type: "STRING" },
+                audioUrl: { type: "STRING" },
+              },
+            },
           },
-          propertyOrdering: [
-            "word",
-            "meaning",
-            "example",
-            "imageUrl",
-            "audioUrl",
-            "is_know",
-          ],
         },
+        required: ["title", "description", "vocabs"],
       },
     },
-    sys_promt: `You are an AI assistant specialized in generating English vocabulary for kids, with Vietnamese meanings and simple example sentences. Your task is to generate a JSON array of vocabulary objects based on the provided format.
+    sys_promt: `You are an AI assistant specialized in generating personalized learning plans from images. Your task is to analyze the provided image and generate a learning plan in JSON format. The plan should include a title, a description, and must be exist a list of vocabulary words based on the content of the image.
 
-            For each vocabulary word, ensure the following structure:
+            For example, if the image shows a cat, the learning plan might be:
             {
-            "word": "string",
-            "meaning": "string",
-            "example": "string",
-            "imageUrl": "string",
-            "audioUrl": "string",
-            "is_know": false
-    }`,
-    // userContextFormat: (topicTitle) => `
-    //     - word: The English word.
-    //     - meaning: The Vietnamese translation of the word.
-    //     - example: A simple, clear example sentence using the word, appropriate for children.
-    //     - imageUrl: Provide a placeholder image URL. Use a format like "https://placehold.co/200x200/cccccc/000000?text=[Word]" where [Word] is the actual word.
-    //     - audioUrl: Provide a placeholder audio URL. Use a format like "https://example.com/audio/[word].mp3" where [word] is the actual word in lowercase.
-    //     - is_know: Always set this to false.
+              "title": "Understanding Feline Behavior",
+              "description": "A learning plan to understand the basic behaviors and characteristics of cats.",
+              
+              "vocabs": [
+                {
+                  "word": "Cat",
+                  "meaning": "Mèo",
+                  "example": "The cat is sleeping.",
+                  "imageUrl": "https://example.com/cat.jpg",
+                  "audioUrl": "https://example.com/cat.mp3"
+                }
+              ]
+            }
 
-    //     Generate a JSON array of vocabulary words on the topic of ${topicTitle}.`,
-    userContextFormat: (topicTitle) => `
-        - word: The English word.
-        - meaning: The Vietnamese translation of the word.
-        - example: A simple, clear example sentence using the word, appropriate for children.
-        - imageUrl: Provide a real link search on internet for an image of the word
-        - audioUrl: Provide a real link search on internet for an audio of the word
-        - is_know: Always set this to false.
+            Please ensure the output is a valid JSON object adhering to the specified schema.`,
+    userContextFormat: () => `
+       You are an educational assistant.
 
-      Generate a JSON array of vocabulary words on the topic of ${topicTitle}.`,
+Given the following image, generate a **personalized learning plan** in JSON format.
+
+Instructions:
+1. First, describe what is shown in the image in one short paragraph.
+2. Then, based on that description, generate the following fields:
+
+- 'title': A short, clear title for the learning plan by english.
+- 'description': A short summary (1–2 sentences) of what the learner will explore by Englist.
+- 'vocabs': A list of vocabulary items extracted from or related to the image. For each vocab, provide:
+    - 'word': The English word.
+    - 'meaning': The Vietnamese translation.
+    - 'example': A simple, clear sentence using the word (suitable for children).
+    - 'imageUrl': A real internet link to an image representing the word.
+    - 'audioUrl': A real internet link to audio pronunciation of the word.
+
+Format your response as valid JSON with the keys: 'title', 'description', and 'vocabs'.
+`,
   },
   VOCAB_CONFIG: {
     generationConfig: {
@@ -66,7 +76,7 @@ exports.ADMIN_ASSISTANT = {
             word: { type: "STRING" },
             meaning: { type: "STRING" },
             example: { type: "STRING" },
-            imageUrl: { type: "STRING" },
+            // imageUrl: { type: "STRING" },
             audioUrl: { type: "STRING" },
             is_know: { type: "BOOLEAN" },
           },
@@ -74,7 +84,7 @@ exports.ADMIN_ASSISTANT = {
             "word",
             "meaning",
             "example",
-            "imageUrl",
+            // "imageUrl",
             "audioUrl",
             "is_know",
           ],
@@ -88,18 +98,18 @@ exports.ADMIN_ASSISTANT = {
             "word": "string",
             "meaning": "string",
             "example": "string",
-            "imageUrl": "string",
             "audioUrl": "string",
             "is_know": false
     }`,
-    userContextFormat: (topicTitle) => `
+    userContextFormat: (topicTitle, listVocabsExist = []) => `
         - word: The English word.
         - meaning: The Vietnamese translation of the word.
         - example: A simple, clear example sentence using the word, appropriate for children.
-        - imageUrl: Provide a placeholder image URL. Use a format like "https://placehold.co/200x200/cccccc/000000?text=[Word]" where [Word] is the actual word.
-        - audioUrl: Provide a placeholder audio URL. Use a format like "https://example.com/audio/[word].mp3" where [word] is the actual word in lowercase.
+        - audioUrl: A real internet link to audio pronunciation of the word.
         
-        Generate a JSON array of vocabulary words on the topic of ${topicTitle}.`,
+        Generate a JSON array of vocabulary words on the topic of ${topicTitle}.
+        And vocabulary words should be suitable for primary and secondary school children, with a focus on building a strong vocabulary foundation.
+        Not exist vocabulary words in the list: ${listVocabsExist}`,
   },
   EXERCISE_CONFIG: {
     sys_promt: `You are a helpful assistant designed to output JSON.
@@ -144,7 +154,9 @@ exports.ADMIN_ASSISTANT = {
       ]
       `,
     userContextFormat: (vocabList) => {
-      return `Generate exercises for the following vocabulary list: ${JSON.stringify(vocabList)}`;
+      return `Generate exercises for the following vocabulary list: ${JSON.stringify(
+        vocabList
+      )}`;
     },
     generationConfig: {
       temperature: 0.9,
@@ -282,5 +294,90 @@ exports.ADMIN_ASSISTANT = {
             4.  **Be creative and flexible**: Propose diverse, creative activities to help children acquire vocabulary effectively within the linear framework.
 
             **Ultimate Goal**: To provide detailed, easy-to-understand, practically deployable vocabulary learning roadmaps that positively support children's language development through a clear, step-by-step learning flow.`,
+  },
+
+  QUIZZ_CONFIG: {
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          content: { type: "STRING" },
+          correctAnswer: { type: "STRING" },
+          difficulty: { type: "STRING" }, // e.g., "beginner"
+          hint: { type: "STRING" },
+          options: {
+            type: "ARRAY",
+            items: { type: "STRING" },
+          },
+        },
+        propertyOrdering: [
+          "content",
+          "correctAnswer",
+          "difficulty",
+          "hint",
+          "options",
+        ],
+      },
+    },
+    sys_prompt: `You are an AI assistant specialized in generating English learning exercises for children. Your task is to create JSON-formatted questions that are educational, engaging, and age-appropriate.
+  
+  Each question must include:
+  - A simple and clear question in English (content).
+  - A correct answer.
+  - A difficulty level (beginner).
+  - A helpful hint suitable for children.
+  - An array of options (if applicable based on type).
+  
+  The output must follow the structure below:
+  {
+    "content": "What is the capital of Vietnam?",
+    "correctAnswer": "Hanoi",
+    "difficulty": "beginner",
+    "hint": "It's a famous city in the north.",
+    "options": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"],
+  }
+  
+  Only return a valid JSON array of question objects. Do not add explanations or text outside the JSON.`,
+
+    userContextFormat: (
+      topicTitle,
+      difficulty = "beginner",
+      listVocabs = [],
+      contextContent = ""
+    ) => `
+  Topic: ${topicTitle}
+  Difficulty: ${difficulty}
+  Context: ${contextContent}
+  
+  Below is a list of vocabulary words that should be prioritized or included when relevant:
+  ${
+    listVocabs.length > 0
+      ? listVocabs.map((v) => `- ${v}`).join("\n")
+      : "- (No specific vocab provided)"
+  }
+  
+  Your task:
+  Generate 1 child-friendly English quiz question that is fun, age-appropriate, and educational. Use the context and vocabulary to shape the question. Keep the language simple and the question format suitable for young English learners.
+  
+  Return only a JSON array containing one object with the following fields:
+  - content: the quiz question
+  - correctAnswer: the correct answer to the question
+  - difficulty: ${difficulty}
+  - hint: a simple and helpful clue
+  - options: 3–4 answer choices, including the correct one
+  
+  Example structure:
+  [
+    {
+      "content": "What is the capital of Vietnam?",
+      "correctAnswer": "Hanoi",
+      "difficulty": "beginner",
+      "hint": "It's a famous city in the north.",
+      "options": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"],
+    }
+  ]
+  Do not include any explanation or formatting outside the JSON array.
+  `,
   },
 };
