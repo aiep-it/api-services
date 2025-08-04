@@ -30,6 +30,7 @@ const protect = async (req, res, next) => {
     res.status(401).json({ message: `Not authorized: ${error.message}` });
   }
 };
+
 const authorizeRoles = (roles = []) => {
   return (req, res, next) => {
     const userRole = req.user?.role;

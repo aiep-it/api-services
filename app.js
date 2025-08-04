@@ -26,6 +26,7 @@ const wordspaceRoutes = require('./src/routers/wordspace.routes');
 const exerciseRoutes = require('./src/routers/exercise.routes');
 const studentRouter = require('./src/routers/student.routes');
 const studentAuthRoutes = require("./src/routers/student-auth.routes.js");
+const classRoutes = require('./src/routers/class.routes.js');
 app.use(cors({
   origin: `http://localhost:3000`, //default ferontend URL
   
@@ -42,7 +43,7 @@ app.use(clerkMiddleware({
 
 
 app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRouter);
-
+app.use('/class', classRoutes);
 app.use("/auth", studentAuthRoutes);
 app.use('/users', userRoutes);
 app.use('/roadmaps', roadmapRoutes); 

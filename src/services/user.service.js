@@ -19,6 +19,23 @@ exports.getAllUsers = async () => {
     },
   });
 };
+// src/services/user.service.js
+exports.getAllTeachers = async () => {
+  return await prisma.user.findMany({
+    where: {
+      role: 'teacher',
+    },
+    select: {
+      id: true,
+      clerkId: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      fullName: true,
+      createdAt: true,
+    },
+  });
+};
 
 exports.getUserByClerkId = async (id) => {
   return await prisma.user.findUnique({
@@ -31,30 +48,58 @@ exports.getUserRoleByClerkId = async (clerkId) => {
   return user?.role || null;
 };
 
-exports.getUserMetrics = async (userId) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+// exports.getUserMetrics = async (userId) => {
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
 
-  const learntToday = await prisma.userNodeProgress.count({
-    where: {
-      userId,
-      isCompleted: true,
-      completedAt: { gte: today },
-    },
-  });
+//   const learntToday = await prisma.userNodeProgress.count({
+//     where: {
+//       userId,
+//       isCompleted: true,
+//       completedAt: { gte: today },
+//     },
+//   });
 
-  const projectsFinished = await prisma.UserRoadmap.count({
-    where: { userId },
-  });
+//   const projectsFinished = await prisma.userRoadmapBookmark.count({
+//     where: { userId },
+//   });
 
-  const streak = 1;
+//   const streak = 1;
 
-  return { streak, learntToday, projectsFinished };
-};
+//   return { streak, learntToday, projectsFinished };
+// };
 
 exports.updateUserMetadata = async (userId, role) => {
-  await clerkClient.users.updateUserMetadata(userId, {
+  // 🔍 1. Tìm clerkId từ userId local
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { clerkId: true },
+  });
+
+  if (!user || !user.clerkId) {
+    throw new Error('Clerk ID not found for this user');
+  }
+
+
+  await clerkClient.users.updateUserMetadata(user.clerkId, {
     publicMetadata: { role },
   });
-  return { message: 'Metadata updated' };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role },
+  });
+
+  return { message: 'Metadata & role updated successfully' };
 };
+
+
+// src/services/user.service.js
+exports.getUsersWithClerkId = async () => {
+  return prisma.user.findMany({
+    where: {
+      clerkId: {
+        not: null,
+      },
+    }
+})};
