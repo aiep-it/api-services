@@ -72,6 +72,7 @@ exports.getVocabsByTopicId = async (req, res) => {
   const { topicId } = req.params;
   const { page = 1, size = 10, search = '', sort, filters } = req.body;
 
+  const user = req.user;
   try {
     const result = await vocabService.getVocabsByTopicId(
       topicId,
@@ -79,7 +80,8 @@ exports.getVocabsByTopicId = async (req, res) => {
       parseInt(size),
       search,
       filters,
-      sort
+      sort,
+      user?.id || null
     );
     
     res.status(200).json(result);
@@ -156,7 +158,6 @@ exports.genVocabsByAIAssistant = async (req, res) => {
 };
 
 exports.getMyVocabLearningProgress = async (req, res) => {
-  console.log("getMyVocabLearningProgress called");
   const user = req.user;
 
   if (!user) {
