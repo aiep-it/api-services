@@ -35,6 +35,7 @@ exports.getAllClasses = async ({ teacherId, search }) => {
     include: {
       teachers: {
         include: { teacher: true },
+     
       },
       roadmaps: {
         include: { roadmap: true },

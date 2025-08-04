@@ -80,12 +80,11 @@ exports.updateUserMetadata = async (userId, role) => {
     throw new Error('Clerk ID not found for this user');
   }
 
-  // ✅ 2. Gọi Clerk API update
+
   await clerkClient.users.updateUserMetadata(user.clerkId, {
     publicMetadata: { role },
   });
 
-  // ✅ 3. Đồng bộ local DB nếu cần
   await prisma.user.update({
     where: { id: userId },
     data: { role },
