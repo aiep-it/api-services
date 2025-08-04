@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String                @id @default(uuid())
+  clerkId             String?               @unique
+  email               String?               @unique
+  firstName           String?
+  lastName            String?
+  role                String                @default("user")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  address             String?
+  fullName            String?
+  parentName          String?
+  parentPhone         String?
+  password            String?
+  username            String?               @unique
+
+  classId             String?
+  class               Class?                @relation("ClassStudents", fields: [classId], references: [id])
+
+  teachingClasses     ClassTeacher[]        // giáo viên dạy các lớp
+  roadmap             Roadmap?              // roadmap do người dùng tạo
+
+  Exercise            Exercise[]
+  UserRoadmap         UserRoadmap[]
+  userTopicProgress   UserTopicProgress[]
+}
+
+model Class {
+  id          String         @id @default(uuid())
+  name        String
+  code        String         @unique
+  description String?
+  level       ClassLevel
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  students    User[]         @relation("ClassStudents")
+  teachers    ClassTeacher[] // danh sách giáo viên dạy lớp
+  roadmaps    ClassRoadmap[]
+}
+
+model ClassTeacher {
+  id         String   @id @default(uuid())
+  teacherId  String
+  classId    String
+  assignedAt DateTime @default(now())
+
+  teacher    User     @relation(fields: [teacherId], references: [id])
+  class      Class    @relation(fields: [classId], references: [id])
+
+  @@unique([teacherId, classId])
+}
+
+model ClassRoadmap {
+  id         String   @id @default(uuid())
+  classId    String
+  roadmapId  String
+  assignedAt DateTime @default(now())
+
+  class      Class    @relation(fields: [classId], references: [id])
+  roadmap    Roadmap  @relation(fields: [roadmapId], references: [id])
+
+  @@unique([classId, roadmapId])
+}
+
+model Roadmap {
+  id                  String                @id @default(cuid())
+  name                String
+  is_deleted          Boolean               @default(false)
+  deleted_at          DateTime?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+  categoryId          String?
+  isNew               Boolean               @default(false)
+  description         String?
+  isWordSpace         Boolean               @default(false)
+  userId              String?               @unique
+
+  user                User?                 @relation(fields: [userId], references: [id])
+  category            Category?             @relation("CategoryToRoadmaps", fields: [categoryId], references: [id])
+
+  topics              Topic[]
+  UserRoadmap         UserRoadmap[]
+  classRoadmaps       ClassRoadmap[]
+
+  @@index([categoryId], map: "Roadmap_categoryId_fkey")
+}
+
+model Topic {
+  id                String              @id @default(cuid())
+  roadmapId         String
+  title             String
+  description       String?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  coverImage        String?
+  suggestionLevel   String?
+  status            TopicStatus         @default(INIT)
+
+  roadmap           Roadmap             @relation(fields: [roadmapId], references: [id])
+  Document          Document[]
+  Exercise          Exercise[]
+  userTopicProgress UserTopicProgress[]
+  Vocab             Vocab[]
+
+  @@index([roadmapId], map: "Topic_roadmapId_fkey")
+}
+
+model Exercise {
+  id            String       @id @default(cuid())
+  userId        String
+  topicId       String
+  type          ExerciseType
+  content       String       @db.Text
+  correctAnswer String
+  options       Json?
+  hint          String?
+  difficulty    Difficulty?
+
+  topic         Topic        @relation(fields: [topicId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
+
+  @@index([topicId])
+  @@index([userId])
+}
+
+model UserRoadmap {
+  userId    String
+  roadmapId String
+  createdAt DateTime @default(now())
+
+  roadmap   Roadmap  @relation(fields: [roadmapId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([userId, roadmapId])
+  @@index([roadmapId], map: "UserRoadmap_roadmapId_fkey")
+}
+
+model UserTopicProgress {
+  userId      String
+  topicId     String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  topic       Topic     @relation(fields: [topicId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@id([userId, topicId])
+  @@index([topicId], map: "UserTopicProgress_topicId_fkey")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  type        String
+  description String?
+  order       Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  roadmaps    Roadmap[] @relation("CategoryToRoadmaps")
+}
+
+model Vocab {
+  id         String    @id @default(cuid())
+  topicId    String
+  word       String
+  meaning    String
+  example    String?
+  imageUrl   String?
+  audioUrl   String?
+  is_know    Boolean   @default(false)
+  is_deleted Boolean   @default(false)
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+
+  Topic      Topic     @relation(fields: [topicId], references: [id])
+
+  @@index([topicId], map: "Vocab_topicId_fkey")
+}
+
+model Document {
+  id          String          @id
+  name        String
+  description String?
+  topicId     String
+  status      Document_status @default(ACTIVATE)
+  created_at  DateTime        @default(now())
+  updated_at  DateTime
+  file        String
+
+  Topic       Topic           @relation(fields: [topicId], references: [id])
+
+  @@index([topicId], map: "Document_topicId_fkey")
+}
+
+enum ExerciseType {
+  text
+  image
+  audio
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+enum TopicStatus {
+  INIT
+  SETTUPED
+  REMOVED
+}
+
+enum Document_status {
+  ACTIVATE
+  DISABLE
+}
+
+enum ClassLevel {
+  STARTERS
+  MOVERS
+  FLYERS
+}

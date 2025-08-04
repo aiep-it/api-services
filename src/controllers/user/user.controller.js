@@ -81,7 +81,7 @@ exports.getLearningRoadmaps = async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch learning roadmaps' });
   }
 };
-//  THÊM API NÀY: Toggle Bookmark cho Roadmap (User)
+
 // exports.toggleBookmarkRoadmap = async (req, res) => {
 //   const { id } = req.params; // roadmapId
 //   const userId = req.user.id; // Lấy userId từ middleware xác thực
