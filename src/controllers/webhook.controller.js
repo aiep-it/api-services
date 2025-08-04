@@ -59,24 +59,28 @@ const webhookHandler = async (req, res) => {
   // console.log('Full event data:', JSON.stringify(evt, null, 2)); // Ghi log toàn bộ event (chỉ cho debug, có thể quá lớn)
 
 
-  const { id, email_addresses, first_name, last_name } = evt.data;
+  const { id, email_addresses, first_name, last_name, username } = evt.data;
   const eventType = evt.type;
   const public_metadata = evt.data.public_metadata || {}; // Đảm bảo public_metadata là object
   const email = email_addresses?.[0]?.email_address; // Sử dụng optional chaining để an toàn
 
-  if (!email) {
+  if (!email && !username) {
     console.error('No primary email provided in webhook payload for user ID:', id);
     return res.status(400).json({ error: 'No primary email provided in webhook payload.' });
   }
 
   if (eventType === 'user.created') {
     try {
-      // Tìm kiếm user bằng email để xử lý trường hợp email đã tồn tại nhưng clerkId khác
-      const existingUserByEmail = await prisma.user.findUnique({
-        where: { email },
+      const existingUser = await prisma.user.findUnique({
+        where: { 
+          OR: [
+            { email: email },
+            { username: username },
+          ],
+         },
       });
 
-      if (existingUserByEmail && existingUserByEmail.clerkId !== id) {
+      if (existingUser && existingUser.clerkId !== id) {
         console.warn('Conflict: Email already exists in DB with a different ClerkId. Skipping user creation/update for:', {
           clerkIdFromClerk: id,
           email: email,
@@ -94,6 +98,7 @@ const webhookHandler = async (req, res) => {
           lastName: last_name || null,
           role: public_metadata.role || 'user', // Cập nhật role từ public_metadata, mặc định 'user'
           updatedAt: new Date(),
+          username: username || null, 
         },
         create: { 
           clerkId: id,
@@ -102,6 +107,7 @@ const webhookHandler = async (req, res) => {
           lastName: last_name || null,
           role: public_metadata.role || 'user', 
           createdAt: new Date(), 
+          username: username || null, 
         },
       });
 
@@ -157,6 +163,7 @@ const webhookHandler = async (req, res) => {
           lastName: last_name || null,
           role: public_metadata.role || 'user',
           updatedAt: new Date(),
+          username: username || null,
         },
       });
       console.log('User updated/synced successfully:', { clerkId: updatedUser.clerkId, email: updatedUser.email, role: updatedUser.role });

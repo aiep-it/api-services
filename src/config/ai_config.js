@@ -76,7 +76,6 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
             word: { type: "STRING" },
             meaning: { type: "STRING" },
             example: { type: "STRING" },
-            // imageUrl: { type: "STRING" },
             audioUrl: { type: "STRING" },
             is_know: { type: "BOOLEAN" },
           },
@@ -84,7 +83,6 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
             "word",
             "meaning",
             "example",
-            // "imageUrl",
             "audioUrl",
             "is_know",
           ],
@@ -107,9 +105,9 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
         - example: A simple, clear example sentence using the word, appropriate for children.
         - audioUrl: A real internet link to audio pronunciation of the word.
         
-        Generate a JSON array of vocabulary words on the topic of ${topicTitle}.
+        Generate a JSON array of vocabulary words on the topic of "Hoat Dong".
         And vocabulary words should be suitable for primary and secondary school children, with a focus on building a strong vocabulary foundation.
-        Not exist vocabulary words in the list: ${listVocabsExist}`,
+        Not exist vocabulary words in the list: [boi, hat]`,
   },
   EXERCISE_CONFIG: {
     sys_promt: `You are a helpful assistant designed to output JSON.

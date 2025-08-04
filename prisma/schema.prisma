@@ -30,7 +30,7 @@ model User {
   UserRoadmap       UserRoadmap[]
   userTopicProgress UserTopicProgress[]
   userVocabProgress UserVocabProgress[]
-
+  userExerciseResult UserExerciseResult[]
   @@index([classId], map: "User_classId_fkey")
 }
 
@@ -148,6 +148,22 @@ model UserVocabProgress {
   @@index([vocabId])
 }
 
+model UserExerciseResult {
+  id          String     @id @default(cuid())
+  userId      String
+  exerciseId  String
+  answer      String
+  isCorrect   Boolean    @default(false)
+  submittedAt DateTime   @default(now())
+
+  user        User       @relation(fields: [userId], references: [id])
+  exercise    Exercise   @relation(fields: [exerciseId], references: [id])
+
+  @@unique([userId, exerciseId])
+  @@index([userId])
+  @@index([exerciseId])
+}
+
 model PersonalLearning {
   id          String  @id @default(cuid())
   userId      String
@@ -220,6 +236,7 @@ model Exercise {
   type          ExerciseType
   topic         Topic        @relation(fields: [topicId], references: [id])
   user          User         @relation(fields: [userId], references: [id])
+  userExerciseResult UserExerciseResult[]
 
   @@index([topicId])
   @@index([userId])

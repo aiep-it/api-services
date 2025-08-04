@@ -141,9 +141,16 @@ exports.getAllMyVocabs = async (userId) => {
       created_at: 'desc',
     },
   });
+  // Flatten the is_learned into top level
+  const flattenedVocabs = vocabs.map(vocab => {
+    return {
+      ...vocab,
+      is_learned: vocab.userVocabProgress[0]?.is_learned || false,
+    };
+  });
 
   return {
-    content: vocabs,
+    content: flattenedVocabs,
     page: 1,
     size: 10000,
     totalElements: vocabs.length,
