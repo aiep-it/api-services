@@ -67,7 +67,7 @@ const webhookHandler = async (req, res) => {
 
   if (eventType === 'user.created') {
     try {
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.user.findFirst({
         where: { 
           OR: [
             { email: email },
