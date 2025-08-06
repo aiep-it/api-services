@@ -64,10 +64,6 @@ const webhookHandler = async (req, res) => {
   const public_metadata = evt.data.public_metadata || {}; // Đảm bảo public_metadata là object
   const email = email_addresses?.[0]?.email_address; // Sử dụng optional chaining để an toàn
 
-  if (!email && !username) {
-    console.error('No primary email provided in webhook payload for user ID:', id);
-    return res.status(400).json({ error: 'No primary email provided in webhook payload.' });
-  }
 
   if (eventType === 'user.created') {
     try {
