@@ -193,6 +193,19 @@ exports.getAllMyVocabs = async (userId) => {
 };
 
 exports.markVocabAsLearned = async (vocabId, userId) => {
+  const vocab = await prisma.vocab.findUnique({
+    where: { id: vocabId },
+    select: { topicId: true },
+  });
+
+  if (vocab && vocab.topicId) {
+    await prisma.userTopicProgress.upsert({
+      where: { userId_topicId: { userId: userId, topicId: vocab.topicId } },
+      update: {},
+      create: { userId: userId, topicId: vocab.topicId },
+    });
+  }
+
   return prisma.userVocabProgress.upsert({
     where: {
       userId_vocabId: {
