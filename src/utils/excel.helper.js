@@ -12,8 +12,8 @@ function parseExcelFile(path) {
     const parentName = row["Parent Name"];
     const parentPhone = row["Parent Phone"];
     const address = row["Address"];
-    console.log('Dữ liệu từ file Excel:', jsonData);  
-    console.log(`Row ${index + 2}:`, { fullName, parentName, parentPhone, address });
+    // console.log('Dữ liệu từ file Excel:', jsonData);  
+    // console.log(`Row ${index + 2}:`, { fullName, parentName, parentPhone, address });
 
     if (!fullName || !parentName || !parentPhone || !address) {
       throw new Error(`❌ Missing data at row ${index + 2} in Excel file`);

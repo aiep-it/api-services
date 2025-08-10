@@ -27,7 +27,7 @@ exports.createCategory = async (req, res) => {
 exports.getAllCategories = async (req, res) => {
   try {
     const categories = await categoryService.getAllCategories();
-    console.log("Fetched categories:", categories);
+    // console.log("Fetched categories:", categories);
     res.status(200).json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error.message);

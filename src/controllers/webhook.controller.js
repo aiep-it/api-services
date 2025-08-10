@@ -125,7 +125,7 @@ const webhookHandler = async (req, res) => {
           roadmapId: wordSpace.id,
         },
       });
-      console.log('User created/synced successfully:', { clerkId: user.clerkId, email: user.email, role: user.role });
+      // console.log('User created/synced successfully:', { clerkId: user.clerkId, email: user.email, role: user.role });
       return res.status(200).json({ message: 'User created in database' });
     } catch (err) {
       console.error('Database error on user.created/upsert:', {
@@ -164,7 +164,7 @@ const webhookHandler = async (req, res) => {
           username: username || null,
         },
       });
-      console.log('User updated/synced successfully:', { clerkId: updatedUser.clerkId, email: updatedUser.email, role: updatedUser.role });
+      // console.log('User updated/synced successfully:', { clerkId: updatedUser.clerkId, email: updatedUser.email, role: updatedUser.role });
       return res.status(200).json({ message: 'User updated in database' });
     } catch (err) {
       console.error('Database error on user.updated:', {
@@ -190,7 +190,7 @@ const webhookHandler = async (req, res) => {
       }
 
       await prisma.user.delete({ where: { clerkId: id } });
-      console.log('User deleted successfully:', id);
+      // console.log('User deleted successfully:', id);
       return res.status(200).json({ message: 'User deleted from database' });
     } catch (err) {
       console.error('Database error on user.deleted:', {
@@ -204,7 +204,7 @@ const webhookHandler = async (req, res) => {
   }
 
 
-  console.log('Unhandled webhook event type:', eventType);
+  // console.log('Unhandled webhook event type:', eventType);
   return res.status(200).json({ message: 'Event processed (type unhandled)' });
 };
 

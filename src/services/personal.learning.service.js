@@ -12,14 +12,14 @@ const getPersonalLearningByUserId = async (userId) => {
 
 const createPersonalLearning = async (data) => {
   const { vocabs, ...personalLearningData } = data;
-  console.log("Creating personal learning with data:", {
-    data: {
-        ...personalLearningData,
-        vocabs: {
-          create: [...vocabs],
-        },
-      },
-  });
+  // console.log("Creating personal learning with data:", {
+  //   data: {
+  //       ...personalLearningData,
+  //       vocabs: {
+  //         create: [...vocabs],
+  //       },
+  //     },
+  // });
   return await prisma.personalLearning.create({
     data: {
       ...personalLearningData,

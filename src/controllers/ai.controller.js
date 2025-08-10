@@ -17,7 +17,7 @@ const generateVocabFromImageHandler = async (req, res) => {
       });
     }
 
-    console.log('Received file:', file.originalname);
+    // console.log('Received file:', file.originalname);
     const result = await generateVocabFromImage(file);
     return res.status(200).json({
       message: 'Generate vocab from image successfully',

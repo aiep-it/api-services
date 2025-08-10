@@ -1,7 +1,7 @@
 // src/controllers/user/metadata.controller.js
 const userService = require('../../services/user.service');
 
-const ALLOWED_ROLES = ['user', 'staff','teacher']; // có thể thêm 'admin' nếu cần
+const ALLOWED_ROLES = ['user', 'staff','teacher','admin','parent'];
 
 exports.updateUserMetadata = async (req, res) => {
   const { userId, role } = req.body;
@@ -16,7 +16,7 @@ exports.updateUserMetadata = async (req, res) => {
 
   try {
     const result = await userService.updateUserMetadata(userId, role);
-    console.log('✅ Metadata updated:', { userId, role });
+    // console.log('✅ Metadata updated:', { userId, role });
     return res.status(200).json(result);
   } catch (err) {
     console.error('❌ Error updating metadata:', err);

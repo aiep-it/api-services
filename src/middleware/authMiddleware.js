@@ -23,7 +23,7 @@ const protect = async (req, res, next) => {
     }
 
     req.user = user;
-    console.log('Auth middleware: User authenticated:', { clerkId, email: user.email });
+    // console.log('Auth middleware: User authenticated:', { clerkId, email: user.email });
     next();
   } catch (error) {
     console.error('Error in auth middleware:', error.message);
