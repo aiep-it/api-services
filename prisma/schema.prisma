@@ -8,30 +8,28 @@ datasource db {
 }
 
 model User {
-  id                String              @id @default(uuid())
-  clerkId           String?             @unique
-  email             String?             @unique
-  firstName         String?
-  lastName          String?
-  role              String              @default("user")
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  address           String?
-  fullName          String?
-  parentName        String?
-  parentPhone       String?
-  password          String?
-  username          String?             @unique
-  classId           String?
-  teachingClasses   ClassTeacher[]
-  Exercise          Exercise[]
-  roadmap           Roadmap?
-  class             Class?              @relation("ClassStudents", fields: [classId], references: [id])
-  UserRoadmap       UserRoadmap[]
-  userTopicProgress UserTopicProgress[]
-  userVocabProgress UserVocabProgress[]
+  id                 String               @id @default(uuid())
+  clerkId            String?              @unique
+  email              String?              @unique
+  firstName          String?
+  lastName           String?
+  role               String               @default("user")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  address            String?
+  fullName           String?
+  parentName         String?
+  parentPhone        String?
+  password           String?
+  username           String?              @unique
+  Exercise           Exercise[]
+  roadmap            Roadmap?
+  
+  userClasses        UserClass[]
   userExerciseResult UserExerciseResult[]
-  @@index([classId], map: "User_classId_fkey")
+  UserRoadmap        UserRoadmap[]
+  userTopicProgress  UserTopicProgress[]
+  userVocabProgress  UserVocabProgress[]
 }
 
 model Class {
@@ -43,21 +41,23 @@ model Class {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   roadmaps    ClassRoadmap[]
-  teachers    ClassTeacher[]
-  students    User[]         @relation("ClassStudents")
+  userClasses UserClass[]
 }
 
-model ClassTeacher {
-  id         String   @id @default(uuid())
-  teacherId  String
-  classId    String
-  assignedAt DateTime @default(now())
-  class      Class    @relation(fields: [classId], references: [id])
-  teacher    User     @relation(fields: [teacherId], references: [id])
+model UserClass {
+  id        String        @id @default(uuid())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  role      UserClassRole
+  userId    String
+  classId   String
+  class     Class         @relation(fields: [classId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
 
-  @@unique([teacherId, classId])
-  @@index([classId], map: "ClassTeacher_classId_fkey")
+  @@unique([userId, classId])
+  @@index([classId], map: "UserClass_classId_fkey")
 }
+
 
 model ClassRoadmap {
   id         String   @id @default(uuid())
@@ -149,15 +149,14 @@ model UserVocabProgress {
 }
 
 model UserExerciseResult {
-  id          String     @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   exerciseId  String
   answer      String
-  isCorrect   Boolean    @default(false)
-  submittedAt DateTime   @default(now())
-
-  user        User       @relation(fields: [userId], references: [id])
-  exercise    Exercise   @relation(fields: [exerciseId], references: [id])
+  isCorrect   Boolean  @default(false)
+  submittedAt DateTime @default(now())
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, exerciseId])
   @@index([userId])
@@ -225,17 +224,17 @@ model Document {
 }
 
 model Exercise {
-  id            String       @id @default(cuid())
-  userId        String
-  content       String       @db.Text
-  correctAnswer String
-  difficulty    Difficulty?
-  hint          String?
-  options       Json?
-  topicId       String
-  type          ExerciseType
-  topic         Topic        @relation(fields: [topicId], references: [id])
-  user          User         @relation(fields: [userId], references: [id])
+  id                 String               @id @default(cuid())
+  userId             String
+  content            String               @db.Text
+  correctAnswer      String
+  difficulty         Difficulty?
+  hint               String?
+  options            Json?
+  topicId            String
+  type               ExerciseType
+  topic              Topic                @relation(fields: [topicId], references: [id])
+  user               User                 @relation(fields: [userId], references: [id])
   userExerciseResult UserExerciseResult[]
 
   @@index([topicId])
@@ -269,4 +268,9 @@ enum ClassLevel {
   STARTERS
   MOVERS
   FLYERS
+}
+
+enum UserClassRole {
+  TEACHER
+  STUDENT
 }

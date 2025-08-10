@@ -23,10 +23,12 @@
      *       content:
      *         application/json:
      *           schema:
-     *             $ref: '#/components/schemas/Student'
+     *             $ref: '#/definitions/CreateStudentRequest'
      *     responses:
      *       201:
      *         description: Student created successfully
+     *         schema:
+     *           $ref: '#/definitions/CreateStudentResponse'
      *       400:
      *         description: Bad request
      *       401:

@@ -1,6 +1,6 @@
 // src/services/user.service.js
-const prisma = require('../../lib/prisma');
-const { createClerkClient } = require('@clerk/backend');
+const prisma = require("../../lib/prisma");
+const { createClerkClient } = require("@clerk/backend");
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -23,7 +23,7 @@ exports.getAllUsers = async () => {
 exports.getAllTeachers = async () => {
   return await prisma.user.findMany({
     where: {
-      role: 'teacher',
+      role: "teacher",
     },
     select: {
       id: true,
@@ -77,9 +77,8 @@ exports.updateUserMetadata = async (userId, role) => {
   });
 
   if (!user || !user.clerkId) {
-    throw new Error('Clerk ID not found for this user');
+    throw new Error("Clerk ID not found for this user");
   }
-
 
   await clerkClient.users.updateUserMetadata(user.clerkId, {
     publicMetadata: { role },
@@ -90,9 +89,8 @@ exports.updateUserMetadata = async (userId, role) => {
     data: { role },
   });
 
-  return { message: 'Metadata & role updated successfully' };
+  return { message: "Metadata & role updated successfully" };
 };
-
 
 // src/services/user.service.js
 exports.getUsersWithClerkId = async () => {
@@ -101,5 +99,29 @@ exports.getUsersWithClerkId = async () => {
       clerkId: {
         not: null,
       },
-    }
-})};
+    },
+  });
+};
+
+exports.createClerkUser = async (userData) => {
+  const { email, password, first_name, last_name, fullName, username } = userData;
+
+  console.log("Creating Clerk user with data:", {
+    ...userData
+  });
+
+  const user = await clerkClient.users.createUser({
+    emailAddress: email,
+    password: password,
+    first_name: first_name,
+    last_name: last_name,
+    username: username,
+    publicMetadata: {
+      fullName: fullName,
+      role: "student",
+    },
+    skipPasswordChecks: true, // Skip password checks for demo purposes
+    
+  });
+  return user;
+};

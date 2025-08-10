@@ -2,23 +2,33 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 const { generateStudentUsername } = require("../utils/username.helper");
+const userService = require("./user.service");
 
 module.exports = {
   async createStudent(payload) {
-    const hashedPassword = await bcrypt.hash(payload.password || "123456", 10);
     const username = await generateStudentUsername();
+    const password = payload.password || "password123";
 
-    return prisma.user.create({
-      data: {
-        fullName: payload.fullName,
-        parentName: payload.parentName,
-        parentPhone: payload.parentPhone,
-        address: payload.address,
-        role: "student",
-        username,
-        password: hashedPassword,
-      },
-    });
+    const clerkUserData = {
+      password: password,
+      first_name: payload.fullName.split(" ")[0], // First part as first name
+      last_name: payload.fullName.split(" ").slice(1).join(" "), // Remaining parts as last name
+      fullName: payload.fullName,
+      username: username,
+    };
+
+    try {
+      const clerkUser = await userService.createClerkUser(clerkUserData);
+      return {
+        clerkId: clerkUser.id,
+        username: username,
+        password: password,
+        message: "Student creation initiated via Clerk. Local sync will follow.",
+      };
+    } catch (error) {
+      console.error("Error creating Clerk user:", error);
+      throw new Error("Failed to create student via Clerk.");
+    }
   },
 
 async  createMultipleStudents(studentList) {

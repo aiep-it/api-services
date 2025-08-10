@@ -138,3 +138,30 @@ exports.removeStudentFromClass = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+exports.getClassInfoByUserIdAndClassId = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { classId } = req.params; // Get classId from params
+    const classInfo = await classService.getClassInfoByUserIdAndClassId(userId, classId);
+    if (!classInfo) {
+      return res.status(404).json({ message: 'Class not found for this user or classId' });
+    }
+    res.json(classInfo);
+  } catch (error) {
+    console.error('❌ Error in getClassInfoByUserIdAndClassId:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+exports.getClassesByUserId = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+    console.log('Fetching classes for user ID:', userId);
+    const classes = await classService.getClassesByUserId(userId);
+    res.json(classes);
+  } catch (error) {
+    console.error('❌ Error in getClassesByUserId:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};

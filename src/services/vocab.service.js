@@ -69,6 +69,10 @@ exports.createVocab = async (data) => {
   return prisma.vocab.create({ data });
 };
 
+exports.createManyVocabs = async (data) => {
+  return prisma.vocab.createMany({ data });
+};
+
 exports.updateVocab = async (id, data) => {
   return prisma.vocab.update({
     where: { id },

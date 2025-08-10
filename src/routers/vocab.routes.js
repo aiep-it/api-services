@@ -181,6 +181,56 @@ router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(cr
 
 /**
  * @swagger
+ * /vocabs/bulk:
+ *   post:
+ *     summary: Insert a list of vocabs
+ *     tags: [Vocabs]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               required:
+ *                 - topicId
+ *                 - word
+ *                 - meaning
+ *               properties:
+ *                 topicId:
+ *                   type: string
+ *                 word:
+ *                   type: string
+ *                 meaning:
+ *                   type: string
+ *                 example:
+ *                   type: string
+ *                 imageUrl:
+ *                   type: string
+ *                 audioUrl:
+ *                   type: string
+ *                 is_know:
+ *                   type: boolean
+ *                   default: false
+ *     responses:
+ *       200:
+ *         description: Vocabs inserted successfully
+ *       400:
+ *         description: Bad Request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Internal Server Error
+ */
+router.post('/bulk', protect, vocabController.createManyVocabs);
+
+/**
+ * @swagger
  * /vocabs/{id}:
  *   put:
  *     summary: Update a vocab
@@ -298,7 +348,7 @@ router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), vocabControll
  *       200:
  *         description: A paginated list of vocabs for the given topic
  */
-router.post('/topic/:topicId', protect, authorizeRoles(['admin', 'staff']), vocabController.getVocabsByTopicId);
+router.post('/topic/:topicId', protect,  vocabController.getVocabsByTopicId);
 
 /**
  * @swagger
@@ -325,7 +375,7 @@ router.post('/topic/:topicId', protect, authorizeRoles(['admin', 'staff']), voca
  *               items:
  *                 $ref: '#/components/schemas/vocabs'
  */
-router.get('/topic/:topicId/all', protect, authorizeRoles(['admin', 'staff', 'student']), vocabController.getAllVocabsByTopicId);
+router.get('/topic/:topicId/all', protect, vocabController.getAllVocabsByTopicId);
 
 
 
@@ -357,7 +407,7 @@ router.get('/topic/:topicId/all', protect, authorizeRoles(['admin', 'staff', 'st
  *       404:
  *         description: Topic not found
  */
-router.post('/ai/gen', protect, authorizeRoles(['admin', 'staff']), vocabController.genVocabsByAIAssistant);
+router.post('/ai/gen', protect, vocabController.genVocabsByAIAssistant);
 
 
 

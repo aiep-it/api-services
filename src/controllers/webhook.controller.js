@@ -92,7 +92,7 @@ const webhookHandler = async (req, res) => {
           email: email,
           firstName: first_name || null,
           lastName: last_name || null,
-          role: public_metadata.role || 'user', // Cập nhật role từ public_metadata, mặc định 'user'
+          role: public_metadata.role || 'ANONYMUS', // Cập nhật role từ public_metadata, mặc định 'user'
           updatedAt: new Date(),
           username: username || null, 
         },
@@ -101,7 +101,7 @@ const webhookHandler = async (req, res) => {
           email: email,
           firstName: first_name || null,
           lastName: last_name || null,
-          role: public_metadata.role || 'user', 
+          role: public_metadata.role || 'ANONYMUS', 
           createdAt: new Date(), 
           username: username || null, 
         },

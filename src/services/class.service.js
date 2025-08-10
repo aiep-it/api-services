@@ -1,30 +1,28 @@
-const prisma = require('../../lib/prisma');
-
-
+const prisma = require("../../lib/prisma");
 
 exports.getAllClasses = async ({ teacherId, search }) => {
   const where = {};
   if (teacherId) {
-    where.teachers = {
+    where.userClasses = {
       some: {
-        teacherId: teacherId,
+        userId: teacherId,
+        role: 'TEACHER',
       },
     };
   }
 
-  
   if (search) {
     where.OR = [
       {
         name: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       {
         code: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
     ];
@@ -33,35 +31,57 @@ exports.getAllClasses = async ({ teacherId, search }) => {
   const classes = await prisma.class.findMany({
     where,
     include: {
-      teachers: {
-        include: { teacher: true },
-     
+      userClasses: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+            },
+          },
+        },
       },
       roadmaps: {
         include: { roadmap: true },
       },
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 
-  return classes.map((cls) => ({
-    id: cls.id,
-    name: cls.name,
-    code: cls.code,
-    level: cls.level,
-    description: cls.description,
-    teachers: cls.teachers.map((t) => ({
-      id: t.teacher.id,
-      fullName: t.teacher.fullName,
-      email: t.teacher.email,
-    })),
-    roadmaps: cls.roadmaps.map((r) => ({
-      id: r.roadmap.id,
-      name: r.roadmap.name,
-    })),
-  }));
+  return classes.map((cls) => {
+    const teachers = cls.userClasses
+      .filter(uc => uc.role === 'TEACHER')
+      .map(uc => ({
+        id: uc.user.id,
+        fullName: uc.user.fullName,
+        email: uc.user.email,
+      }));
+
+    const students = cls.userClasses
+      .filter(uc => uc.role === 'STUDENT')
+      .map(uc => ({
+        id: uc.user.id,
+        fullName: uc.user.fullName,
+        email: uc.user.email,
+      }));
+
+    return {
+      id: cls.id,
+      name: cls.name,
+      code: cls.code,
+      level: cls.level,
+      description: cls.description,
+      teachers: teachers,
+      students: students,
+      roadmaps: cls.roadmaps.map((r) => ({
+        id: r.roadmap.id,
+        name: r.roadmap.name,
+      })),
+    };
+  });
 };
 exports.addRoadmapToClass = async (classId, roadmapId) => {
   try {
@@ -75,7 +95,7 @@ exports.addRoadmapToClass = async (classId, roadmapId) => {
     });
 
     if (existing) {
-      throw new Error('Roadmap already assigned to this class');
+      throw new Error("Roadmap already assigned to this class");
     }
 
     return await prisma.classRoadmap.create({
@@ -85,7 +105,7 @@ exports.addRoadmapToClass = async (classId, roadmapId) => {
       },
     });
   } catch (error) {
-    console.error('❌ Error in addRoadmapToClass:', error);
+    console.error("❌ Error in addRoadmapToClass:", error);
     throw error;
   }
 };
@@ -96,8 +116,11 @@ exports.createClass = async (data) => {
   return await prisma.class.create({
     data: {
       ...classData,
-      teachers: {
-        create: teacherIds.map((id) => ({ teacherId: id })),
+      userClasses: {
+        create: teacherIds.map((id) => ({
+          userId: id,
+          role: 'TEACHER',
+        })),
       },
       roadmaps: {
         create: roadmapIds.map((id) => ({ roadmapId: id })),
@@ -110,10 +133,15 @@ exports.getClassById = async (classId) => {
   const cls = await prisma.class.findUnique({
     where: { id: classId },
     include: {
-      students: true,
-      teachers: {
+      userClasses: {
         include: {
-          teacher: true,
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+            },
+          },
         },
       },
       roadmaps: {
@@ -126,26 +154,36 @@ exports.getClassById = async (classId) => {
 
   if (!cls) return null;
 
+  const teachers = cls.userClasses
+    .filter(uc => uc.role === 'TEACHER')
+    .map(uc => ({
+      id: uc.user.id,
+      fullName: uc.user.fullName,
+      email: uc.user.email,
+    }));
+
+  const students = cls.userClasses
+    .filter(uc => uc.role === 'STUDENT')
+    .map(uc => ({
+      id: uc.user.id,
+      fullName: uc.user.fullName,
+      email: uc.user.email,
+    }));
+
   return {
     id: cls.id,
     name: cls.name,
     code: cls.code,
     level: cls.level,
     description: cls.description,
-    students: cls.students,
-    teachers: cls.teachers.map((t) => ({
-      id: t.teacher.id,
-      fullName: t.teacher.fullName,
-      email: t.teacher.email,
-    })),
+    students: students,
+    teachers: teachers,
     roadmaps: cls.roadmaps.map((r) => ({
       id: r.roadmap.id,
       name: r.roadmap.name,
     })),
   };
 };
-
-
 
 exports.updateClass = async (classId, data) => {
   return await prisma.class.update({
@@ -154,10 +192,8 @@ exports.updateClass = async (classId, data) => {
   });
 };
 
-
 // services/class.service.js
 exports.deleteClass = async (classId) => {
-
   const classExists = await prisma.class.findUnique({
     where: { id: classId },
     select: { id: true },
@@ -168,69 +204,63 @@ exports.deleteClass = async (classId) => {
   }
 
   return await prisma.$transaction([
-
-    prisma.classTeacher.deleteMany({ where: { classId } }),
-
-
+    prisma.userClass.deleteMany({ where: { classId } }), // Delete UserClass entries
     prisma.classRoadmap.deleteMany({ where: { classId } }),
-
-
-    prisma.user.updateMany({
-      where: { classId },
-      data: { classId: null },
-    }),
-
     prisma.class.delete({
       where: { id: classId },
     }),
   ]);
 };
 
-
-
 // class.service.js
 exports.addTeacherToClass = async (classId, teacherId) => {
-  return prisma.classTeacher.create({
+  return prisma.userClass.create({
     data: {
       classId,
-      teacherId,
+      userId: teacherId,
+      role: 'TEACHER',
     },
   });
 };
 
 exports.removeTeacherFromClass = async (classId, teacherId) => {
   try {
-    await prisma.classTeacher.delete({
+    await prisma.userClass.delete({
       where: {
-        teacherId_classId: {
-          teacherId,
-          classId,
+        userId_classId: {
+          userId: teacherId,
+          classId: classId,
         },
       },
     });
     return true;
   } catch (error) {
-    console.error('❌ Error in classService.removeTeacherFromClass:', error);
+    console.error("❌ Error in classService.removeTeacherFromClass:", error);
     return false;
   }
 };
 
-
-
 exports.addStudentsToClass = async (classId, studentIds) => {
   return prisma.$transaction(
     studentIds.map((id) =>
-      prisma.user.update({
-        where: { id },
-        data: { classId },
+      prisma.userClass.create({
+        data: {
+          classId,
+          userId: id,
+          role: 'STUDENT',
+        },
       })
     )
   );
 };
 exports.removeStudentFromClass = async (classId, studentId) => {
-  return prisma.user.update({
-    where: { id: studentId },
-    data: { classId: null },
+  return prisma.userClass.delete({
+    where: {
+      userId_classId: {
+        userId: studentId,
+        classId: classId,
+      },
+    },
   });
 };
 exports.removeRoadmapFromClass = async (classId, roadmapId) => {
@@ -245,7 +275,149 @@ exports.removeRoadmapFromClass = async (classId, roadmapId) => {
     });
     return true;
   } catch (error) {
-    console.error('❌ Error in removeRoadmapFromClass:', error);
+    console.error("❌ Error in removeRoadmapFromClass:", error);
     return false;
   }
+};
+
+exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
+  const userClassEntry = await prisma.userClass.findUnique({
+    where: {
+      userId_classId: {
+        userId: userId,
+        classId: classId,
+      },
+    },
+    include: {
+      class: {
+        include: {
+          userClasses: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          roadmaps: {
+            include: {
+              roadmap: {
+                include: {
+                  topics: true,
+                  category: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!userClassEntry || !userClassEntry.class) return null;
+
+  console.log("User class entry found:", userClassEntry);
+
+  const cls = userClassEntry.class;
+
+  const teachers = cls.userClasses
+    .filter(uc => uc.role === 'TEACHER')
+    .map(uc => ({
+      id: uc.user.id,
+      fullName: uc.user.fullName,
+      email: uc.user.email,
+    }));
+
+  const students = cls.userClasses
+    .filter(uc => uc.role === 'STUDENT')
+    .map(uc => ({
+      id: uc.user.id,
+      fullName: uc.user.fullName,
+      email: uc.user.email,
+    }));
+
+  return {
+    id: cls.id,
+    name: cls.name,
+    code: cls.code,
+    level: cls.level,
+    description: cls.description,
+    teachers: teachers,
+    roadmaps: await Promise.all(
+      cls.roadmaps.map(async (r) => {
+        const topicsWithProgress = await Promise.all(
+          r.roadmap.topics.map(async (topic) => {
+            const totalVocabsInTopic = await prisma.vocab.count({
+              where: {
+                topicId: topic.id,
+              },
+            });
+
+            const learnedVocabsInTopic = await prisma.userVocabProgress.count({
+              where: {
+                userId: userId,
+                vocab: {
+                  topicId: topic.id,
+                },
+                is_learned: true,
+              },
+            });
+
+            return {
+              id: topic.id,
+              title: topic.title,
+              image: topic.coverImage,
+              description: topic.description,
+              progress: {
+                totalVocabs: totalVocabsInTopic,
+                learnedVocabs: learnedVocabsInTopic,
+              },
+            };
+          })
+        );
+
+        return {
+          id: r.roadmap.id,
+          name: r.roadmap.name,
+          category: r.roadmap.category?.name,
+          topics: topicsWithProgress,
+        };
+      })
+    ),
+    students: students,
+  };
+};
+
+exports.getClassesByUserId = async (userId) => {
+  console.log("Fetching classes for user:", userId);
+  const userClasses = await prisma.userClass.findMany({
+    where: { userId: userId },
+    include: {
+      class: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          description: true,
+          level: true,
+        },
+      },
+    },
+  });
+
+  return userClasses.map((uc) => ({
+    id: uc.class.id,
+    name: uc.class.name,
+    code: uc.class.code,
+    level: uc.class.level,
+    description: uc.class.description,
+    role: uc.role,
+  }));
 };

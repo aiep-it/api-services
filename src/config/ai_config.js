@@ -77,6 +77,7 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
             meaning: { type: "STRING" },
             example: { type: "STRING" },
             audioUrl: { type: "STRING" },
+            imageUrl: { type: "STRING" },
             is_know: { type: "BOOLEAN" },
           },
           propertyOrdering: [
@@ -97,6 +98,7 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
             "meaning": "string",
             "example": "string",
             "audioUrl": "string",
+            "imageUrl": "string",
             "is_know": false
     }`,
     userContextFormat: (topicTitle, listVocabsExist = []) => `
@@ -104,10 +106,11 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
         - meaning: The Vietnamese translation of the word.
         - example: A simple, clear example sentence using the word, appropriate for children.
         - audioUrl: A real internet link to audio pronunciation of the word.
+        - 'imageUrl': A real internet link to an image representing the word.
         
-        Generate a JSON array of vocabulary words on the topic of "Hoat Dong".
+        Generate a JSON array of vocabulary words on the topic of ${topicTitle}.
         And vocabulary words should be suitable for primary and secondary school children, with a focus on building a strong vocabulary foundation.
-        Not exist vocabulary words in the list: [boi, hat]`,
+        Not exist vocabulary words in the list: ${listVocabsExist}`,
   },
   EXERCISE_CONFIG: {
     sys_promt: `You are a helpful assistant designed to output JSON.
