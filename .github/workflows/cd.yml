@@ -33,8 +33,9 @@ jobs:
             nvm use 23 || nvm install 23
 
             cd /home/ubuntu/aiep-it/api-services
-            npm run sync:pull
+            git staff
             git pull
+            npm run sync:pull
             npm install
 
             export PATH="$PATH:$HOME/.npm-global/bin"
