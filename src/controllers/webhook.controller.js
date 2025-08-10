@@ -95,6 +95,7 @@ const webhookHandler = async (req, res) => {
           role: public_metadata.role || 'ANONYMUS', // Cập nhật role từ public_metadata, mặc định 'user'
           updatedAt: new Date(),
           username: username || null, 
+          fullName: `${first_name || ''} ${last_name || ''}`.trim(), 
         },
         create: { 
           clerkId: id,
@@ -104,6 +105,7 @@ const webhookHandler = async (req, res) => {
           role: public_metadata.role || 'ANONYMUS', 
           createdAt: new Date(), 
           username: username || null, 
+          fullName: `${first_name || ''} ${last_name || ''}`.trim(), 
         },
       });
 
