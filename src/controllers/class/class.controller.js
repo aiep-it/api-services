@@ -165,3 +165,23 @@ exports.getClassesByUserId = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+exports.joinClassByCode = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { classCode } = req.body;
+
+    if (!classCode) {
+      return res.status(400).json({ message: 'Class code is required' });
+    }
+
+    const result = await classService.joinClassByCode(userId, classCode);
+    res.status(200).json({ message: 'Successfully joined class', data: result });
+  } catch (error) {
+    console.error('❌ Error in joinClassByCode:', error);
+    res.status(500).json({ message: error.message || 'Internal Server Error' });
+  }
+};
+
+exports.genClassCode = async (req, res) => {
+};

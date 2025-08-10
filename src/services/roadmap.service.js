@@ -15,10 +15,49 @@ exports.createRoadmap = async (data) => {
   });
 };
 
-exports.getAllRoadmaps = async (userId) => {
-  const roadmaps = await prisma.roadmap.findMany({
-    where: { is_deleted: false, isWordSpace: false },
-  });
+exports.getAllRoadmaps = async (userId, userRole) => {
+  let roadmaps;
+  if (userRole?.toLowerCase() === 'student') {
+    const userClasses = await prisma.userClass.findMany({
+      where: {
+        userId: userId,
+        role: 'STUDENT',
+      },
+      include: {
+        class: {
+          include: {
+            roadmaps: {
+              include: {
+                roadmap: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const studentRoadmapIds = new Set();
+    userClasses.forEach(uc => {
+      uc.class.roadmaps.forEach(cr => {
+        if (!cr.roadmap.is_deleted && !cr.roadmap.isWordSpace) {
+          studentRoadmapIds.add(cr.roadmap.id);
+        }
+      });
+    });
+
+    roadmaps = await prisma.roadmap.findMany({
+      where: {
+        id: {
+          in: Array.from(studentRoadmapIds),
+        },
+      },
+    });
+
+  } else {
+    roadmaps = await prisma.roadmap.findMany({
+      where: { is_deleted: false, isWordSpace: false },
+    });
+  }
 
   return await Promise.all(
     roadmaps.map(async (roadmap) => {

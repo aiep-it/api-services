@@ -461,4 +461,56 @@ router.post('/:id/roadmaps', protect, classController.addRoadmapToClass);
  */
 router.get('/my-class-info/:classId', protect, classController.getClassInfoByUserIdAndClassId);
 
+/**
+ * @swagger
+ * /class/join-by-code:
+ *   post:
+ *     summary: Join a class using a class code
+ *     tags: [Class Management]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               classCode:
+ *                 type: string
+ *                 description: The unique code of the class to join
+ *             required:
+ *               - classCode
+ *     responses:
+ *       200:
+ *         description: Successfully joined class
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *               example: Successfully joined class
+ *             data:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 classId:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *                   enum: [STUDENT]
+ *       400:
+ *         description: Bad Request (e.g., missing class code, class not found, user already in class)
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
+router.post('/join-by-code', protect, classController.joinClassByCode);
+
+router.get('/gen-code', protect)
+
 module.exports = router;

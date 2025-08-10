@@ -1,4 +1,5 @@
 const prisma = require("../../lib/prisma");
+const { generateClassCode } = require("../utils/class.helper");
 
 exports.getAllClasses = async ({ teacherId, search }) => {
   const where = {};
@@ -16,13 +17,11 @@ exports.getAllClasses = async ({ teacherId, search }) => {
       {
         name: {
           contains: search,
-          mode: "insensitive",
         },
       },
       {
         code: {
           contains: search,
-          mode: "insensitive",
         },
       },
     ];
@@ -113,9 +112,12 @@ exports.addRoadmapToClass = async (classId, roadmapId) => {
 exports.createClass = async (data) => {
   const { teacherIds = [], roadmapIds = [], ...classData } = data;
 
+  const generatedCode = await generateClassCode(); // Generate unique code
+
   return await prisma.class.create({
     data: {
       ...classData,
+      code: generatedCode, // Add the generated code
       userClasses: {
         create: teacherIds.map((id) => ({
           userId: id,
@@ -420,4 +422,35 @@ exports.getClassesByUserId = async (userId) => {
     description: uc.class.description,
     role: uc.role,
   }));
+};
+
+exports.joinClassByCode = async (userId, classCode) => {
+  const cls = await prisma.class.findUnique({
+    where: { code: classCode },
+  });
+
+  if (!cls) {
+    throw new Error("Class not found with the provided code.");
+  }
+
+  const existingUserClass = await prisma.userClass.findUnique({
+    where: {
+      userId_classId: {
+        userId: userId,
+        classId: cls.id,
+      },
+    },
+  });
+
+  if (existingUserClass) {
+    throw new Error("User is already a member of this class.");
+  }
+
+  return prisma.userClass.create({
+    data: {
+      userId: userId,
+      classId: cls.id,
+      role: 'STUDENT',
+    },
+  });
 };

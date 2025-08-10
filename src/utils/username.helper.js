@@ -1,61 +1,49 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+// Function to generate a random string of a given length
+function generateRandomString(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 async function generateStudentUsername() {
     let username;
-    let nextNumber;
     let foundUnique = false;
     let attempts = 0;
-    const MAX_ATTEMPTS = 100;
-
-    try {
-        const latestUser = await prisma.user.findFirst({
-            where: {
-                username: {
-                    startsWith: 'HS'
-                }
-            },
-            orderBy: {
-                username: 'desc'
-            },
-            select: {
-                username: true
-            }
-        });
-
-        if (latestUser && latestUser.username) {
-            const numPart = parseInt(latestUser.username.substring(2), 10);
-            nextNumber = isNaN(numPart) ? 1 : numPart + 1;
-        } else {
-            nextNumber = 1;
-        }
-    } catch (error) {
-        console.error("Lỗi khi lấy username mới nhất:", error);
-        nextNumber = 1;
-    }
+    const MAX_ATTEMPTS = 10; // Reduce max attempts for faster generation
 
     while (!foundUnique && attempts < MAX_ATTEMPTS) {
-        username = `HS${String(nextNumber).padStart(4, "0")}`;
+        // Get a short timestamp (last 5 digits of milliseconds)
+        const timestampPart = String(Date.now()).slice(-5);
+        // Generate a short random suffix
+        const randomSuffix = generateRandomString(3); // 3 random characters
+
+        username = `HS${timestampPart}${randomSuffix}`; // e.g., HS12345abc
 
         try {
             const found = await prisma.user.findUnique({ where: { username } });
             if (!found) {
                 foundUnique = true;
             } else {
-                console.log(`Username ${username} đã tồn tại. Thử với số tiếp theo.`);
-                nextNumber++;
+                console.log(`Username ${username} already exists. Trying a new one.`);
             }
         } catch (dbError) {
-            console.error("Lỗi khi kiểm tra username:", dbError);
-            nextNumber++;
+            console.error("Error checking username uniqueness:", dbError);
+            // If there's a DB error, still try a new username
         }
 
         attempts++;
-        await new Promise(resolve => setTimeout(resolve, 10)); // Tránh quá tải cơ sở dữ liệu
+        // No need for setTimeout here, as uniqueness is handled by random suffix and retries
     }
 
     if (!foundUnique) {
-        throw new Error("Không thể tạo username duy nhất sau nhiều lần thử. Vui lòng thử lại.");
+        throw new Error("Could not generate a unique username after multiple attempts. Please try again.");
     }
 
     return username;

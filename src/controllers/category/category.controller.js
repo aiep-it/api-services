@@ -2,7 +2,7 @@
 const categoryService = require('../../services/category.service');
 
 exports.createCategory = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can create categories.' });
   }
 
@@ -36,7 +36,7 @@ exports.getAllCategories = async (req, res) => {
 };
 
 exports.updateCategory = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can update categories.' });
   }
 
@@ -53,7 +53,7 @@ exports.updateCategory = async (req, res) => {
 };
 
 exports.deleteCategory = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can delete categories.' });
   }
 

@@ -4,10 +4,11 @@ const bcrypt = require("bcrypt");
 const { generateStudentUsername } = require("../utils/username.helper");
 const userService = require("./user.service");
 
+const DEFAULT_PASSWORD = "123456az"; // Default strong password for Clerk
 module.exports = {
   async createStudent(payload) {
     const username = await generateStudentUsername();
-    const password = payload.password || "password123";
+    const password = DEFAULT_PASSWORD;
 
     const clerkUserData = {
       password: password,
@@ -23,6 +24,7 @@ module.exports = {
         clerkId: clerkUser.id,
         username: username,
         password: password,
+        fullName: payload.fullName,
         message: "Student creation initiated via Clerk. Local sync will follow.",
       };
     } catch (error) {
@@ -31,35 +33,35 @@ module.exports = {
     }
   },
 
-async  createMultipleStudents(studentList) {
+async createMultipleStudents(studentList) {
   const createdUsers = [];
   const studentsResult = [];
 
   for (const s of studentList) {
     const username = await generateStudentUsername();
-    const hashedPassword = await bcrypt.hash("123456", 10);
+    const password = DEFAULT_PASSWORD; // Use a strong default password for Clerk
+
+    const clerkUserData = {
+      email: s.email,
+      password: password,
+      firstName: s.fullName.split(" ")[0],
+      lastName: s.fullName.split(" ").slice(1).join(" "),
+      fullName: s.fullName,
+      username: username,
+    };
 
     try {
-      const user = await prisma.user.create({
-        data: {
-          fullName: s.fullName,
-          parentName: s.parentName,
-          parentPhone: s.parentPhone,
-          address: s.address,
-          role: "student",
-          username,
-          password: hashedPassword,
-        },
-      });
-
-      createdUsers.push(user);
+      const clerkUser = await userService.createClerkUser(clerkUserData);
+      createdUsers.push(clerkUser);
       studentsResult.push({
-        username: user.username,
-        password: "123456",
+        clerkId: clerkUser.id,
+        username: username,
+        password: password,
+        fullName: s.fullName,
       });
     } catch (error) {
-      console.error("❌ Lỗi khi tạo học sinh:", error);
-      throw new Error("Không thể tạo danh sách học sinh. Vui lòng thử lại.");
+      console.error("❌ Error creating Clerk user for bulk import:", error);
+      throw new Error(`Failed to create student ${s.fullName} via Clerk: ${error.message}`);
     }
   }
 

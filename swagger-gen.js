@@ -132,6 +132,24 @@ const doc = {
         password: { type: 'string', description: 'The password used for the student' },
         message: { type: 'string', description: 'Confirmation message' },
       },
+    },
+    BulkImportStudentsResponse: {
+      type: 'object',
+      properties: {
+        count: { type: 'integer', description: 'Number of students successfully created' },
+        students: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              clerkId: { type: 'string', description: 'The ID of the user in Clerk' },
+              username: { type: 'string', description: 'The generated or provided username' },
+              password: { type: 'string', description: 'The password used for the student' },
+              fullName: { type: 'string', description: 'The full name of the student' },
+            },
+          },
+        },
+      },
     }
   }
 };

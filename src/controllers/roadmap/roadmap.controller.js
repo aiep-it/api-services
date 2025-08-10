@@ -2,7 +2,7 @@
 const roadmapService = require('../../services/roadmap.service');
 
 exports.createRoadmap = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can create roadmaps.' });
   }
 
@@ -17,8 +17,10 @@ exports.createRoadmap = async (req, res) => {
 
 exports.getAllRoadmaps = async (req, res) => {
   const userId = req.user ? req.user.id : null;
+  const userRole = req.user ? req.user.role : null; // Extract user role
   try {
-    const roadmaps = await roadmapService.getAllRoadmaps(userId);
+
+    const roadmaps = await roadmapService.getAllRoadmaps(userId, userRole); // Pass userRole
     res.status(200).json(roadmaps);
   } catch (error) {
     console.error('Error fetching all roadmaps:', error);
@@ -43,7 +45,7 @@ exports.getRoadmapById = async (req, res) => {
 };
 
 exports.updateRoadmap = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can update roadmaps.' });
   }
 
@@ -57,7 +59,7 @@ exports.updateRoadmap = async (req, res) => {
 };
 
 exports.deleteRoadmap = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can delete roadmaps.' });
   }
 

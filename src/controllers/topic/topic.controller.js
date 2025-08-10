@@ -4,7 +4,7 @@ const roadmapService = require('../../services/roadmap.service');
 
 
 exports.createTopic = async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+  if (req.user.role?.toLowerCase() !== 'admin' && req.user.role?.toLowerCase() !== 'staff') {
     return res.status(403).json({ message: 'Forbidden: Only admin or staff can create topics.' });
   }
 

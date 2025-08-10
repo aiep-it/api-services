@@ -56,32 +56,10 @@ class ReportController {
 
   async getCourseOverview(req, res, next) {
     try {
-      const { id: userId } = req.user;
+      const { id: userId, role: userRole } = req.user;
+      const { page } = req.query;
 
-      const { page } = req.query; 
-
-      const topicFilter = {
-        roadmap: {
-          is: {
-            is_deleted: false,
-            isWordSpace: false,
-          }
-        }
-      };
-      if (page === ReportPage.WORK_SPACE) {
-        topicFilter.roadmap.is.isWordSpace = true;
-        topicFilter.roadmap.is.userId = userId;
-      } else if (page === ReportPage.COURSER) {
-        topicFilter.roadmap.is.isWordSpace = false;
-      }
-
-      const exerciseFilter = {
-        userId,
-        exercise: {
-          topic: topicFilter,
-        },
-      };
-      const overview = await ReportService.getCourseOverview(userId ,topicFilter, exerciseFilter);
+      const overview = await ReportService.getCourseOverview(userId, userRole, page);
       res.status(200).json(overview);
     } catch (error) {
       next(error);

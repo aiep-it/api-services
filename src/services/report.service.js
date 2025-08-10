@@ -170,7 +170,85 @@ class ReportService {
     };
   }
 
-  async getCourseOverview(userId, topicFilter = {}, exerciseFilter = {}) {
+  async getCourseOverview(userId, userRole, page) {
+    let topicFilter = {
+      roadmap: {
+        is_deleted: false,
+      },
+    };
+    let exerciseFilter = {};
+
+    if (page === 'workspace') {
+      topicFilter.roadmap.isWordSpace = true;
+      topicFilter.roadmap.userId = userId;
+      exerciseFilter = {
+        userId: userId,
+        exercise: {
+          topic: {
+            roadmap: {
+              isWordSpace: true,
+              userId: userId,
+            },
+          },
+        },
+      };
+    } else if (page === 'course') {
+      topicFilter.roadmap.isWordSpace = false;
+
+      if (userRole?.toLowerCase() === 'student') {
+        const userClasses = await prisma.userClass.findMany({
+          where: {
+            userId: userId,
+            role: 'STUDENT',
+          },
+          include: {
+            class: {
+              include: {
+                roadmaps: {
+                  include: {
+                    roadmap: {
+                      select: {
+                        id: true,
+                        isWordSpace: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        );
+
+        const classRoadmapIds = new Set();
+        userClasses.forEach(uc => {
+          uc.class.roadmaps.forEach(cr => {
+            if (!cr.roadmap.isWordSpace) { 
+              classRoadmapIds.add(cr.roadmap.id);
+            }
+          });
+        });
+
+        topicFilter = {
+          ...topicFilter,
+          roadmapId: {
+            in: Array.from(classRoadmapIds),
+          },
+        };
+
+        exerciseFilter = {
+          userId: userId,
+          exercise: {
+            topic: {
+              roadmapId: {
+                in: Array.from(classRoadmapIds),
+              },
+            },
+          },
+        };
+      }
+    }
+
     const totalTopics = await prisma.topic.count({
       where: topicFilter,
     });
@@ -187,6 +265,7 @@ class ReportService {
 
     const totalTopicEnrolled = await prisma.userTopicProgress.count({
       where: {
+        userId,
         topic: topicFilter,
       },
     });

@@ -59,6 +59,8 @@
      *     responses:
      *       201:
      *         description: Students imported successfully
+     *         schema:
+     *           $ref: '#/definitions/BulkImportStudentsResponse'
      *       400:
      *         description: Bad request
      *       401:

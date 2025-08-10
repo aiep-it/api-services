@@ -80,7 +80,7 @@ const webhookHandler = async (req, res) => {
         console.warn('Conflict: Email already exists in DB with a different ClerkId. Skipping user creation/update for:', {
           clerkIdFromClerk: id,
           email: email,
-          existingClerkIdInDB: existingUserByEmail.clerkId,
+          existingClerkIdInDB: existingUser.clerkId,
         });
         // Trả về 200 OK vì webhook đã được xử lý (không tạo mới, nhưng đã ghi nhận conflict)
         return res.status(200).json({ message: 'User with this email already exists, skipping creation.' });
