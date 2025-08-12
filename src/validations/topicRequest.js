@@ -18,7 +18,7 @@ const createTopicSchema = Joi.object({
 
 
 const updateTopicSchema = Joi.object({
-    title: Joi.string().min(1).max(30).required().messages({
+    title: Joi.string().min(1).max(50).required().messages({
       "string.base": `"name" should be a type of 'text'`,
       "string.empty": `"name" cannot be an empty field`,
       "string.min": `"name" should have a minimum length of {#limit}`,
