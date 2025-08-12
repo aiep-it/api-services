@@ -65,6 +65,42 @@ class ReportController {
       next(error);
     }
   }
+
+  async getClassReport(req, res, next) {
+    try {
+      const { classId } = req.params;
+      const { id: teacherId } = req.user;
+
+      const report = await ReportService.getClassReport(teacherId, classId);
+      res.status(200).json(report);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getClassTopicReport(req, res, next) {
+    try {
+      const { classId, topicId } = req.params;
+      const { id: teacherId } = req.user;
+
+      const report = await ReportService.getClassTopicReport(teacherId, classId, topicId);
+      res.status(200).json(report);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getStudentClassReport(req, res, next) {
+    try {
+      const { studentId, classId } = req.params;
+      const { id: teacherId } = req.user;
+
+      const report = await ReportService.getStudentClassReport(studentId, classId, teacherId);
+      res.status(200).json(report);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ReportController();

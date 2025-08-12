@@ -101,4 +101,91 @@ router.get('/exercise-results/topic/:topicId', ReportController.getExerciseResul
  */
 router.get('/course-overview', protect, ReportController.getCourseOverview);
 
+/**
+ * @swagger
+ * /reports/class/{classId}:
+ *   get:
+ *     summary: Get a report for a specific class by a teacher
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: classId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the class to get the report for
+ *     responses:
+ *       200:
+ *         description: The class report
+ *       403:
+ *         description: 'Forbidden: User is not a teacher for this class'
+ *       404:
+ *         description: 'Class not found'
+ */
+router.get('/class/:classId', protect, ReportController.getClassReport);
+
+/**
+ * @swagger
+ * /reports/class/{classId}/topic/{topicId}:
+ *   get:
+ *     summary: Get a report for a specific topic within a class by a teacher
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: classId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the class
+ *       - in: path
+ *         name: topicId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the topic
+ *     responses:
+ *       200:
+ *         description: The class and topic report
+ *       403:
+ *         description: 'Forbidden: User is not a teacher for this class'
+ *       404:
+ *         description: 'Class or Topic not found, or Topic not associated with class'
+ */
+router.get('/class/:classId/topic/:topicId', protect, ReportController.getClassTopicReport);
+
+/**
+ * @swagger
+ * /reports/class/{classId}/student/{studentId}:
+ *   get:
+ *     summary: Get a report for a specific student within a class by a teacher
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: classId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the class
+ *       - in: path
+ *         name: studentId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the student
+ *     responses:
+ *       200:
+ *         description: The student's report within the class
+ *       403:
+ *         description: 'Forbidden: User is not a teacher for this class'
+ *       404:
+ *         description: 'Class or Student not found, or Student not in class'
+ */
+router.get('/class/:classId/student/:studentId', protect, ReportController.getStudentClassReport);
+
 module.exports = router;
