@@ -215,14 +215,34 @@ exports.deleteClass = async (classId) => {
 };
 
 // class.service.js
+const { notifyTeacherAdded } = require('./notification.service');
+
 exports.addTeacherToClass = async (classId, teacherId) => {
-  return prisma.userClass.create({
+  // 1) Tạo quan hệ
+  const uc = await prisma.userClass.create({
     data: {
       classId,
-      userId: teacherId,
+      userId: teacherId,       
       role: 'TEACHER',
     },
   });
+
+  // 2) Lấy tên lớp để thông báo
+  const cls = await prisma.class.findUnique({
+    where: { id: classId },
+    select: { id: true, name: true },
+  });
+
+  // 3) Gửi thông báo (in-app + optional email + optional realtime)
+  await notifyTeacherAdded({
+    teacherUserId: teacherId,      // User.id (UUID)
+    classId: cls.id,
+    className: cls.name,
+    classLink: `${process.env.APP_URL}/class-room/${cls.id}`,
+    // realtimeTrigger: (channel, event, payload) => pusherServer.trigger(channel, event, payload),
+  });
+
+  return uc;
 };
 
 exports.removeTeacherFromClass = async (classId, teacherId) => {

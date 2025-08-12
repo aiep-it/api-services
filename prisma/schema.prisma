@@ -8,28 +8,29 @@ datasource db {
 }
 
 model User {
-  id                 String               @id @default(uuid())
-  clerkId            String?              @unique
-  email              String?              @unique
-  firstName          String?
-  lastName           String?
-  role               String               @default("user")
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  address            String?
-  fullName           String?
-  parentName         String?
-  parentPhone        String?
-  password           String?
-  username           String?              @unique
-  Exercise           Exercise[]
-  roadmap            Roadmap?
-  
+  id          String     @id @default(uuid())
+  clerkId     String?    @unique
+  email       String?    @unique
+  firstName   String?
+  lastName    String?
+  role        String     @default("user")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  address     String?
+  fullName    String?
+  parentName  String?
+  parentPhone String?
+  password    String?
+  username    String?    @unique
+  Exercise    Exercise[]
+  roadmap     Roadmap?
+
   userClasses        UserClass[]
   userExerciseResult UserExerciseResult[]
   UserRoadmap        UserRoadmap[]
   userTopicProgress  UserTopicProgress[]
   userVocabProgress  UserVocabProgress[]
+  notifications      Notification[]
 }
 
 model Class {
@@ -58,6 +59,18 @@ model UserClass {
   @@index([classId], map: "UserClass_classId_fkey")
 }
 
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
 
 model ClassRoadmap {
   id         String   @id @default(uuid())
