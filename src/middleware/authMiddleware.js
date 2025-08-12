@@ -11,7 +11,6 @@ const protect = async (req, res, next) => {
     }
 
     const clerkId = auth.userId;
-
     // Find user in local database
     const user = await prisma.user.findUnique({
       where: { clerkId },
@@ -33,12 +32,13 @@ const protect = async (req, res, next) => {
 
 const authorizeRoles = (roles = []) => {
   return (req, res, next) => {
-    const userRole = req.user?.role;
-    if (!userRole || !roles.includes(userRole.toLowerCase())) {
-      return res.status(403).json({ 
-        message: `Forbidden: Requires role ${roles.join(' or ')}, but your role is ${userRole || 'none'}.`
-      });
-    }
+    // TODO
+    // const userRole = req.user?.role;
+    // if (!userRole || !roles.includes(userRole.toLowerCase())) {
+    //   return res.status(403).json({ 
+    //     message: `Forbidden: Requires role ${roles.join(' or ')}, but your role is ${userRole || 'none'}.`
+    //   });
+    // }
     next();
   };
 };

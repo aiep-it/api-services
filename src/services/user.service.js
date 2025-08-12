@@ -125,3 +125,29 @@ exports.createClerkUser = async (userData) => {
   });
   return user;
 };
+
+exports.sendInvite = async (email, role) => {
+  try {
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      publicMetadata: {
+        role: role,
+      },
+      redirectUrl: "https://dxri5rqql2ood.cloudfront.net/"
+    });
+    return invitation;
+  } catch (error) {
+    console.error("Error sending Clerk invitation:", error);
+    throw new Error(`Failed to send invitation: ${error.message}`);
+  }
+};
+
+exports.getInvitations = async () => {
+  try {
+    const invitations = await clerkClient.invitations.getInvitationList();
+    return invitations;
+  } catch (error) {
+    console.error("Error fetching Clerk invitations:", error);
+    throw new Error(`Failed to fetch invitations: ${error.message}`);
+  }
+};

@@ -67,14 +67,22 @@ const webhookHandler = async (req, res) => {
 
   if (eventType === 'user.created') {
     try {
-      const existingUser = await prisma.user.findFirst({
-        where: { 
-          OR: [
-            { email: email },
-            { username: username },
-          ],
-         },
-      });
+      const orConditions = [];
+      if (email) {
+        orConditions.push({ email: email });
+      }
+      if (username) {
+        orConditions.push({ username: username });
+      }
+
+      let existingUser = null;
+      if (orConditions.length > 0) {
+        existingUser = await prisma.user.findFirst({
+          where: {
+            OR: orConditions,
+          },
+        });
+      }
 
       if (existingUser && existingUser.clerkId !== id) {
         console.warn('Conflict: Email already exists in DB with a different ClerkId. Skipping user creation/update for:', {
