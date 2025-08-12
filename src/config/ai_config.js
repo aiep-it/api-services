@@ -381,4 +381,25 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
   Do not include any explanation or formatting outside the JSON array.
   `,
   },
+
+  IMAGE_GENERATION_CONFIG: {
+   
+    sys_promt: `You are an AI assistant specialized in generating images from text prompts.
+        Your task is to create colorful, child-friendly, and visually appealing images 
+        that help children learn vocabulary. The images should be simple, safe, and 
+        suitable for children aged 6–15 years old. Ensure the style is bright, playful, 
+        and educational, clearly illustrating the vocabulary word. Avoid any content 
+        that is scary, violent, or inappropriate for children.`},
+    userContextFormat: (vocab) => `
+        Generate an image based on the following prompt:
+        "${vocab}"
+        
+        The image should be colorful, child-friendly, and visually appealing, 
+        suitable for children aged 6–15 years old. Ensure the style is bright, 
+        playful, and educational, clearly illustrating the vocabulary word.
+        
+        Avoid any content that is scary, violent, or inappropriate for children.
+      `,
 };
+
+  

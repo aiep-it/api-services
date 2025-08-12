@@ -5,7 +5,6 @@ const { initializeGeminiModel, initializeImageModel, getGenAIInstance, getGenAII
 const fs = require("node:fs");
 const { uploadFileToDirectus } = require("./directus.service");
 const AI_Assistant = initializeGeminiModel;
-const AI_Image_Assistant = initializeImageModel;
 const AI_CONFIG = require("../config/ai_config");
 
 exports.generateVocabularyData = async (topic, wordsExist = []) => {
@@ -45,40 +44,35 @@ exports.generateVocabularyData = async (topic, wordsExist = []) => {
   }
 };
 
-exports.suggestTopics = async (topic) => {
+exports.generateTopicSuggestions = async (prompt) => {
   if (!AI_Assistant) {
     throw new Error(
       "Gemini model has not been initialized. Call initializeGeminiModel() first."
     );
   }
-  if (!topic) {
+  if (!prompt) {
     throw new Error(
-      "Topic or list of words is required to generate vocabulary."
+      "Prompt is required to generate topic suggestions."
     );
   }
 
-  const userRequest =
-    AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(topic);
-
-  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
+  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.TOPIC_SUGGEST_CONFIG.sys_promt;
 
   try {
     const result = await AI_Assistant.generateContent({
       contents: [
-        { role: "user", parts: [{ text: systemPrompt + userRequest }] },
+        { role: "user", parts: [{ text: systemPrompt + prompt }] },
       ],
-      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.generationConfig,
+      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.TOPIC_SUGGEST_CONFIG.generationConfig,
     });
 
     const response = result.response;
     const jsonText = response.text();
     const parsedData = JSON.parse(jsonText);
     return parsedData;
-
-    // return
   } catch (error) {
-    console.log("error", error);
-    return [];
+    console.error("Error generating topic suggestions:", error);
+    return null;
   }
 };
 
@@ -181,8 +175,6 @@ exports.generateVocabFromImage = async (file) => {
     const response = await result.response;
     const responseText = response.text();
 
-    console.log("Text Generating", responseText);
-
     const vocabularyObject = safeJsonParse(responseText);
 
     if (!vocabularyObject) {
@@ -215,10 +207,15 @@ exports.generateImageFromPrompt = async (prompt) => {
   }
 
   try {
+    const userRequest =
+    AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.userContextFormat(vocabList);
+
+  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.sys_promt;
     const genAI = getGenAIImageGenerator();
     const response = await genAI.models.generateImages({
       model: 'imagen-3.0-generate-002', // Using the model defined in geminiClient.js
-      prompt: prompt,
+      contents: [
+        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
       config: {
         numberOfImages: 1, // Generate one image for now
       },

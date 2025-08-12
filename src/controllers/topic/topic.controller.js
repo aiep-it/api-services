@@ -1,6 +1,7 @@
 // src/controllers/topic/topic.controller.js
 const topicService = require('../../services/topic.service');
 const roadmapService = require('../../services/roadmap.service');
+const aiAssistantService = require('../../services/ai.assistant.service');
 
 
 exports.createTopic = async (req, res) => {
@@ -91,6 +92,18 @@ exports.updateTopic = async (req, res) => {
   } catch (error) {
     console.error('Error updating topic:', error);
     res.status(400).json({ message: 'Failed to update topic.' });
+  }
+}
+
+exports.getSuggestedTopics = async (req, res) => {
+  const { content } = req.body;
+
+  try {
+    const suggestedTopics = await aiAssistantService.generateTopicSuggestions(content);
+    res.status(200).json(suggestedTopics);
+  } catch (error) {
+    console.error('Error getting suggested topics:', error);
+    res.status(500).json({ message: 'Failed to get suggested topics.' });
   }
 }
 

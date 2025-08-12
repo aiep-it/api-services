@@ -15,8 +15,15 @@ class UserExerciseResultService {
       });
     }
 
-    return prisma.userExerciseResult.create({
-      data,
+    return prisma.userExerciseResult.upsert({
+      where: {
+        userId_exerciseId: {
+          userId: data.userId,
+          exerciseId: data.exerciseId,
+        },
+      },
+      update: data,
+      create: data,
     });
   }
 

@@ -14,11 +14,12 @@ const createTopicSchema = Joi.object({
     "string.min": `"description" should have a minimum length of {#limit}`,
   }),
   roadmapId: Joi.string().required(),
+  id: Joi.string().optional(),
 });
 
 
 const updateTopicSchema = Joi.object({
-    title: Joi.string().min(1).max(30).required().messages({
+    title: Joi.string().min(1).max(255).required().messages({
       "string.base": `"name" should be a type of 'text'`,
       "string.empty": `"name" cannot be an empty field`,
       "string.min": `"name" should have a minimum length of {#limit}`,

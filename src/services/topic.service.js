@@ -3,10 +3,27 @@ const prisma = require('../../lib/prisma');
 const { calculateUserRoadmapProgress } = require('../utils/roadmap.utils');
 const { TopicStatus } = require('@prisma/client')
 
-exports.createTopic = async ({ roadmapId, title, description }) => {
-  return await prisma.topic.create({
-    data: { roadmapId, title, description, status: TopicStatus.INIT },
-  });
+exports.createTopic = async (data) => {
+  if (data.id) {
+    return await prisma.topic.upsert({
+      where: { id: data.id },
+      update: {
+        title: data.title,
+        description: data.description,
+      },
+      create: {
+        id: data.id,
+        roadmapId: data.roadmapId,
+        title: data.title,
+        description: data.description,
+        status: data.status ?? TopicStatus.INIT,
+      },
+    });
+  } else {
+    return await prisma.topic.create({
+      data: { ...data, status: TopicStatus.INIT },
+    });
+  }
 };
 
 exports.completeTopic = async (userId, topicId) => {

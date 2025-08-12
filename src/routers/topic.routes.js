@@ -120,4 +120,28 @@ router.get('/list/:roadmapId', topicController.getTopicsByRoadmapId);
 
 router.put('/:topicId', protect, validateRequest(updateTopicSchema), topicController.updateTopic);
 
+/**
+ * @swagger
+ * /topics/suggest:
+ *   post:
+ *     summary: Get AI suggested topics
+ *     tags: [Topics]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               prompt:
+ *                 type: string
+ *                 description: The prompt for AI topic suggestion.
+ *     responses:
+ *       200:
+ *         description: AI suggested topics retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/ai/suggest', topicController.getSuggestedTopics);
+
 module.exports = router;
