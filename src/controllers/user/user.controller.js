@@ -134,3 +134,29 @@ exports.getAllUsersWithClerkId = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch users with Clerk ID' });
   }
 };
+
+exports.sendInvite = async (req, res) => {
+  try {
+    const { email, role } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email and role are required' });
+    }
+
+    const invitation = await userService.sendInvite(email, 'teacher');
+    res.status(200).json({ message: 'Invitation sent successfully', invitationId: invitation.id });
+  } catch (error) {
+    console.error('❌ Error in sendInvite:', error);
+    res.status(500).json({ message: error.message || 'Internal Server Error' });
+  }
+};
+
+exports.getInvitations = async (req, res) => {
+  try {
+    const invitations = await userService.getInvitations();
+    res.status(200).json(invitations);
+  } catch (error) {
+    console.error('❌ Error in getInvitations:', error);
+    res.status(500).json({ message: error.message || 'Internal Server Error' });
+  }
+};

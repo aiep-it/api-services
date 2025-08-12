@@ -33,7 +33,7 @@ jobs:
             nvm use 23 || nvm install 23
 
             cd /home/ubuntu/aiep-it/api-services
-            git staff
+            git stash
             git pull
             npm run sync:pull
             npm install
