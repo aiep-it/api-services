@@ -10,7 +10,6 @@ const generatePersonalLearningFromImageHandler = async (req, res) => {
       });
     }
 
-    // console.log('Received file:', file.originalname);
     const result = await generatePersonalLearningFromImage(file);
     return res.status(200).json({
       message: 'Generate personal learning from image successfully',
@@ -27,7 +26,6 @@ const createPersonalLearningHandler = async (req, res) => {
   try {
     // req.user = user;
     const userId = req?.user?.id; // Assuming user ID is available in req.user
-    // console.log('User ID from request:', req);
     if (!userId) {
       return res.status(401).json({message: 'Unauthorized: User ID is required'});
     }

@@ -20,7 +20,6 @@ async importStudentsExcel(req, res) {
       return res.status(400).json({ error: 'Không có file được tải lên.' });
     }
     const students = await parseExcelFile(req.file.path);
-    // console.log('Danh sách học sinh từ file Excel:', students);
     const result = await userService.createMultipleStudents(students);
 
     res.status(201).json(result);

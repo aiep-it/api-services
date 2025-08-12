@@ -16,7 +16,6 @@ exports.updateUserMetadata = async (req, res) => {
 
   try {
     const result = await userService.updateUserMetadata(userId, role);
-    // console.log('✅ Metadata updated:', { userId, role });
     return res.status(200).json(result);
   } catch (err) {
     console.error('❌ Error updating metadata:', err);

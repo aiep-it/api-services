@@ -121,5 +121,27 @@ router.put('/:id', protect, authorizeRoles(['admin', 'staff']), categoryControll
  *         description: Success message
  */
 router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), categoryController.deleteCategory);
+/*
+# /categories/{id}:
+get:
+  summary: Get a category by ID
+  tags: [Categories]
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema: { type: string }
+  responses:
+    200:
+      description: Category detail
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Category'
+    404:
+      description: Not found
+// NEW: GET one
+*/
+router.get('/:id',protect, authorizeRoles(['admin', 'staff']), categoryController.getCategoryById);
 
 module.exports = router;

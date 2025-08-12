@@ -157,7 +157,6 @@ exports.getClassInfoByUserIdAndClassId = async (req, res) => {
 exports.getClassesByUserId = async (req, res) => {
   try {
     const userId = req.user.id; 
-    // console.log('Fetching classes for user ID:', userId);
     const classes = await classService.getClassesByUserId(userId);
     res.json(classes);
   } catch (error) {

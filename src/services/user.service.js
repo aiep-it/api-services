@@ -106,9 +106,9 @@ exports.getUsersWithClerkId = async () => {
 exports.createClerkUser = async (userData) => {
   const { email, password, first_name, last_name, fullName, username } = userData;
 
-  // console.log("Creating Clerk user with data:", {
-  //   ...userData
-  // });
+  console.log("Creating Clerk user with data:", {
+    ...userData
+  });
 
   const user = await clerkClient.users.createUser({
     emailAddress: email,

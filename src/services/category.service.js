@@ -35,3 +35,8 @@ exports.deleteCategory = async (id) => {
     where: { id },
   });
 };
+exports.getCategoryById = async (id) => {
+  return prisma.category.findUnique({
+    where: { id },
+  });
+};

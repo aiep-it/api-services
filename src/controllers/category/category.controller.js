@@ -8,9 +8,7 @@ exports.createCategory = async (req, res) => {
 
   const type = "?"
   const { name,  description, order } = req.body;
-  // if (!name || !type) {
-  //   return res.status(400).json({ message: 'Name and type are required.' });
-  // }
+
 
   try {
     const category = await categoryService.createCategory({ name, type, description, order });
@@ -27,7 +25,6 @@ exports.createCategory = async (req, res) => {
 exports.getAllCategories = async (req, res) => {
   try {
     const categories = await categoryService.getAllCategories();
-    // console.log("Fetched categories:", categories);
     res.status(200).json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error.message);
@@ -66,5 +63,17 @@ exports.deleteCategory = async (req, res) => {
       return res.status(409).json({ error: 'Cannot delete category: It is linked to existing roadmaps.' });
     }
     res.status(500).json({ message: 'Failed to delete category.' });
+  }
+};
+exports.getCategoryById = async (req, res) => {
+  try {
+    const category = await categoryService.getCategoryById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found.' });
+    }
+    res.status(200).json(category);
+  } catch (error) {
+    console.error('Error fetching category by id:', error.message);
+    res.status(500).json({ message: 'Failed to retrieve category.' });
   }
 };

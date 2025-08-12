@@ -225,6 +225,7 @@ exports.addTeacherToClass = async (classId, teacherId) => {
   });
 };
 
+
 exports.removeTeacherFromClass = async (classId, teacherId) => {
   try {
     await prisma.userClass.delete({
