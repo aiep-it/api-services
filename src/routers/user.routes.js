@@ -13,6 +13,12 @@ const router = express.Router();
 
 // ===== ROUTES =====
 
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management and authentication
+ */
 
 /**
  * @swagger
@@ -43,15 +49,17 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Invitation sent successfully
- *         schema:
- *           type: object
- *           properties:
- *             message:
- *               type: string
- *               example: Invitation sent successfully
- *             invitationId:
- *               type: string
- *               description: The ID of the Clerk invitation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invitation sent successfully
+ *                 invitationId:
+ *                   type: string
+ *                   description: The ID of the Clerk invitation
  *       400:
  *         description: Bad Request (e.g., missing email or role)
  *       401:
@@ -66,7 +74,7 @@ router.post('/invite', protect, authorizeRoles(['admin', 'staff']), userControll
 
 /**
  * @swagger
- * /update-metadata:
+ * /users/update-metadata:
  *   post:
  *     summary: Update user metadata
  *     tags: [User]
@@ -75,15 +83,27 @@ router.post('/invite', protect, authorizeRoles(['admin', 'staff']), userControll
  *     responses:
  *       200:
  *         description: Metadata updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Metadata updated successfully"
  *       403:
  *         description: Forbidden
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.post('/update-metadata', protect, authorizeRoles(['admin']), metadataController.updateUserMetadata);
 
 // 2. Lấy role hiện tại (Clerk ID)
 /**
  * @swagger
- * /me:
+ * /users/me:
  *   get:
  *     summary: Get current user role
  *     tags: [User]
@@ -92,13 +112,26 @@ router.post('/update-metadata', protect, authorizeRoles(['admin']), metadataCont
  *     responses:
  *       200:
  *         description: Current user role retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 role:
+ *                   type: string
+ *                   description: The role of the current user
+ *                   example: "student"
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.get('/me', protect, meController.getCurrentUserRole);
 
 // 3. Lấy metrics người dùng hiện tại
 /**
  * @swagger
- * /me/metrics:
+ * /users/me/metrics:
  *   get:
  *     summary: Get current user metrics
  *     tags: [User]
@@ -107,13 +140,31 @@ router.get('/me', protect, meController.getCurrentUserRole);
  *     responses:
  *       200:
  *         description: User metrics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalTopicsCompleted:
+ *                   type: number
+ *                   example: 10
+ *                 totalExercisesCompleted:
+ *                   type: number
+ *                   example: 50
+ *                 totalVocabLearned:
+ *                   type: number
+ *                   example: 100
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.get('/me/metrics', protect, meController.getUserMetrics);
 
 // 4. Lấy roadmap đã bookmark (learning-roadmaps)
 /**
  * @swagger
- * /me/learning-roadmaps:
+ * /users/me/learning-roadmaps:
  *   get:
  *     summary: Get bookmarked learning roadmaps
  *     tags: [User]
@@ -122,13 +173,32 @@ router.get('/me/metrics', protect, meController.getUserMetrics);
  *     responses:
  *       200:
  *         description: List of bookmarked learning roadmaps
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   isBookmarked:
+ *                     type: boolean
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.get('/me/learning-roadmaps', protect, userController.getLearningRoadmaps);
 
 // 5. Toggle bookmark roadmap
 /**
  * @swagger
- * /{roadmapId}/bookmark:
+ * /users/{roadmapId}/bookmark:
  *   post:
  *     summary: Toggle bookmark for a roadmap
  *     tags: [Roadmap]
@@ -144,13 +214,27 @@ router.get('/me/learning-roadmaps', protect, userController.getLearningRoadmaps)
  *     responses:
  *       200:
  *         description: Bookmark toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Bookmark toggled successfully"
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Roadmap not found
+ *       500:
+ *         description: Internal Server Error
  */
 router.post('/:roadmapId/bookmark', protect, bookmarkController.toggleBookmarkRoadmap);
 
 // 6. Admin: Lấy toàn bộ user
 /**
  * @swagger
- * /:
+ * /users:
  *   get:
  *     summary: Get all users
  *     tags: [User]
@@ -159,8 +243,29 @@ router.post('/:roadmapId/bookmark', protect, bookmarkController.toggleBookmarkRo
  *     responses:
  *       200:
  *         description: List of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   role:
+ *                     type: string
  *       403:
  *         description: Forbidden
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
 
@@ -209,10 +314,43 @@ router.get('/', protect, authorizeRoles(['admin']), userController.getAllUsers);
 
 router.get('/with-clerk-id', userController.getAllUsersWithClerkId);
 router.get('/teachers', userController.getAllTeachers); 
+/**
+ * @swagger
+ * /users/teachers:
+ *   get:
+ *     summary: Get all users with role teacher
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all teachers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Internal Server Error
+ */ 
 // 7. Admin: Lấy user theo Clerk ID
 /**
  * @swagger
- * /{id}:
+ * /users/{id}:
  *   get:
  *     summary: Get user by Clerk ID
  *     tags: [User]
@@ -228,8 +366,31 @@ router.get('/teachers', userController.getAllTeachers);
  *     responses:
  *       200:
  *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 clerkId:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 firstName:
+ *                   type: string
+ *                 lastName:
+ *                   type: string
+ *                 role:
+ *                   type: string
  *       403:
  *         description: Forbidden
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal Server Error
  */
 // <<<<<<< HEAD
 

@@ -22,6 +22,10 @@
  *     responses:
  *       201:
  *         description: Topic created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Topic'
  *       400:
  *         description: Bad request
  *       401:
@@ -46,6 +50,10 @@
  *     responses:
  *       200:
  *         description: Topic retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Topic'
  *       404:
  *         description: Topic not found
  */
@@ -74,6 +82,10 @@
  *     responses:
  *       200:
  *         description: Topic updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Topic'
  *       400:
  *         description: Bad request
  *       401:
@@ -113,6 +125,12 @@ router.get('/:topicId', topicController.getTopicById);
  *     responses:
  *       200:
  *         description: A list of topics for the given roadmap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Topic'
  *       404:
  *         description: Roadmap not found
  */
@@ -122,7 +140,7 @@ router.put('/:topicId', protect, validateRequest(updateTopicSchema), topicContro
 
 /**
  * @swagger
- * /topics/suggest:
+ * /topics/ai/suggest:
  *   post:
  *     summary: Get AI suggested topics
  *     tags: [Topics]

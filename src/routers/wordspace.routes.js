@@ -19,7 +19,7 @@ router.use(protect);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Wordspace'
+ *               $ref: '#/components/schemas/Roadmap'
  *       401:
  *         description: Unauthorized
  */
@@ -98,7 +98,9 @@ router.post('/topics/:topicId/vocabs', wordspaceController.addVocab);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/MultipleVocabs'
+ *             type: array
+ *             items:
+ *               $ref: '#/components/schemas/Vocab'
  *     responses:
  *       201:
  *         description: Vocabularies added successfully

@@ -23,12 +23,12 @@
      *       content:
      *         application/json:
      *           schema:
-     *             $ref: '#/definitions/CreateStudentRequest'
+     *             $ref: '#/components/schemas/CreateStudentRequest'
      *     responses:
      *       201:
      *         description: Student created successfully
      *         schema:
-     *           $ref: '#/definitions/CreateStudentResponse'
+     *           $ref: '#/components/schemas/CreateStudentResponse'
      *       400:
      *         description: Bad request
      *       401:
@@ -60,7 +60,7 @@
      *       201:
      *         description: Students imported successfully
      *         schema:
-     *           $ref: '#/definitions/BulkImportStudentsResponse'
+     *           $ref: '#/components/schemas/BulkImportStudentsResponse'
      *       400:
      *         description: Bad request
      *       401:
@@ -87,6 +87,12 @@
      *     responses:
      *       200:
      *         description: A list of students
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/Student'
      *       401:
      *         description: Unauthorized
      *       403:
@@ -117,6 +123,10 @@
      *     responses:
      *       200:
      *         description: Student updated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Student'
      *       400:
      *         description: Bad request
      *       401:
@@ -143,6 +153,14 @@
      *     responses:
      *       200:
      *         description: Student deleted successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Student deleted successfully"
      *       401:
      *         description: Unauthorized
      *       403:
@@ -173,6 +191,14 @@
      *     responses:
      *       200:
      *         description: Password changed successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Password changed successfully"
      *       400:
      *         description: Bad request
      *       401:
@@ -200,6 +226,24 @@
      *     responses:
      *       201:
      *         description: Enrolled successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Enrolled successfully"
+     *                 userRoadmap:
+     *                   type: object
+     *                   properties:
+     *                     userId:
+     *                       type: string
+     *                     roadmapId:
+     *                       type: string
+     *                     createdAt:
+     *                       type: string
+     *                       format: date-time
      *       400:
      *         description: Bad request
      *       401:

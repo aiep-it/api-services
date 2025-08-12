@@ -15,10 +15,7 @@ const categoryController = require('../controllers/category/category.controller'
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
 /**
- * @route GET /
- * @group Categories - Operations about categories
- * @returns {Array.<Category>} 200 - An array of categories
- * @returns {Error}  default - Unexpected error
+ 
  * @swagger
  * /categories:
  *   get:
@@ -37,11 +34,7 @@ const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 router.get('/', categoryController.getAllCategories);
 
 /**
- * @route POST /
- * @group Categories - Operations about categories
- * @param {Category.model} category.body.required - category object
- * @returns {Category.model} 201 - Created category
- * @returns {Error}  default - Unexpected error
+ 
  * @swagger
  * /categories:
  *   post:
@@ -64,12 +57,7 @@ router.get('/', categoryController.getAllCategories);
 router.post('/', protect, authorizeRoles(['admin', 'staff']), categoryController.createCategory);
 
 /**
- * @route PUT /:id
- * @group Categories - Operations about categories
- * @param {string} id.path.required - category id
- * @param {Category.model} category.body.required - category object
- * @returns {Category.model} 200 - Updated category
- * @returns {Error}  default - Unexpected error
+ * 
  * @swagger
  * /categories/{id}:
  *   put:
@@ -99,11 +87,7 @@ router.post('/', protect, authorizeRoles(['admin', 'staff']), categoryController
 router.put('/:id', protect, authorizeRoles(['admin', 'staff']), categoryController.updateCategory);
 
 /**
- * @route DELETE /:id
- * @group Categories - Operations about categories
- * @param {string} id.path.required - category id
- * @returns {string} 200 - Success message
- * @returns {Error}  default - Unexpected error
+ 
  * @swagger
  * /categories/{id}:
  *   delete:

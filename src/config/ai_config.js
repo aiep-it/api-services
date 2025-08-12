@@ -294,6 +294,8 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
 
             4.  **Be creative and flexible**: Propose diverse, creative activities to help children acquire vocabulary effectively within the linear framework.
 
+            5. **Response mustbe English**: All responses must be in English, using simple, clear language suitable for children.
+
             **Ultimate Goal**: To provide detailed, easy-to-understand, practically deployable vocabulary learning roadmaps that positively support children's language development through a clear, step-by-step learning flow.`,
   },
 

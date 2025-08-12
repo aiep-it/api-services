@@ -121,68 +121,64 @@ router.post(
 );
 
 
-// router.post(
-//   "/",
-//   // authStudent,
-//   upload.single("image"),
-//   generatePersonalLearningFromImageHandler
-// );
+
 
 /**
  * @swagger
- * /personal-learning:
- *   post:
- *     summary: Generate a personalized learning plan from an image
+ * /personal-learning/{userId}:
+ *   get:
+ *     summary: Get personal learning entries by user ID
  *     tags: [Personal Learning]
- *     description: Upload an image to have AI generate a personalized learning plan, including a title, description, learning objectives, and related vocabulary. Requires student authentication.
+ *     description: Retrieve all personal learning entries for a specific user. Requires student authentication.
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               image:
- *                 type: string
- *                 format: binary
- *                 description: The image to generate the learning plan from.
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user.
  *     responses:
  *       '200':
- *         description: A personalized learning plan.
+ *         description: A list of personal learning entries.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 title:
- *                   type: string
- *                   description: Title of the learning plan.
- *                 description:
- *                   type: string
- *                   description: Description of the learning plan.
- *                 vocabs:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       word:
- *                         type: string
- *                       meaning:
- *                         type: string
- *                       example:
- *                         type: string
- *                       imageUrl:
- *                         type: string
- *                       audioUrl:
- *                         type: string
- *       '400':
- *         description: No file uploaded or invalid request.
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   userId:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   vocabs:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         word:
+ *                           type: string
+ *                         meaning:
+ *                           type: string
+ *                         example:
+ *                           type: string
+ *                         imageUrl:
+ *                           type: string
+ *                         audioUrl:
+ *                           type: string
  *       '401':
  *         description: Unauthorized, authentication token missing or invalid.
+ *       '404':
+ *         description: No personal learning entries found for the user.
+ *       '500':
+ *         description: Internal server error.
  */
-
 router.get(
   "/:userId",
   // authStudent,
@@ -377,13 +373,6 @@ router.put(
   updatePersonalLearningHandler
 );
 
-router.delete(
-  "/:id",
-  // authStudent,
-  validate(personalLearningRequest.deletePersonalLearningSchema),
-  deletePersonalLearningHandler
-);
-
 /**
  * @swagger
  * /personal-learning/{id}:
@@ -410,5 +399,11 @@ router.delete(
  *       '500':
  *         description: Internal server error.
  */
+router.delete(
+  "/:id",
+  // authStudent,
+  validate(personalLearningRequest.deletePersonalLearningSchema),
+  deletePersonalLearningHandler
+);
 
 module.exports = router;

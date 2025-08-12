@@ -13,26 +13,19 @@ const { protect } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /class/user/{userId}:
+ * /class/all-my-classes:
  *   get:
- *     summary: Get classes by user ID
+ *     summary: Get all classes for the authenticated user
  *     tags: [Class Management]
  *     security:
  *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: userId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID of the user to retrieve classes for
  *     responses:
  *       200:
  *         description: Successful operation
  *         schema:
  *           type: array
  *           items:
- *             $ref: '#/definitions/ClassInfoWithRole'
+ *             $ref: '#/components/schemas/ClassInfoWithRole'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -69,7 +62,7 @@ router.get('/all-my-classes', protect, classController.getClassesByUserId);
  *         schema:
  *           type: array
  *           items:
- *             $ref: '#/definitions/Class'
+ *             $ref: '#/components/schemas/Class'
  *       401:
  *         description: Unauthorized
  *       500:
@@ -90,12 +83,12 @@ router.get('/', protect, classController.getAllClasses);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/definitions/CreateClassRequest'
+ *             $ref: '#/components/schemas/CreateClassRequest'
  *     responses:
  *       201:
  *         description: Class created successfully
  *         schema:
- *           $ref: '#/definitions/Class'
+ *           $ref: '#/components/schemas/Class'
  *       400:
  *         description: Bad Request
  *       401:
@@ -124,7 +117,7 @@ router.post('/', protect, classController.createClass);
  *       200:
  *         description: Successful operation
  *         schema:
- *           $ref: '#/definitions/Class'
+ *           $ref: '#/components/schemas/Class'
  *       401:
  *         description: Unauthorized
  *       404:
@@ -153,12 +146,12 @@ router.get('/:id', protect, classController.getClassById);
  *         name: body
  *         required: true
  *         schema:
- *           $ref: '#/definitions/UpdateClassRequest'
+ *           $ref: '#/components/schemas/UpdateClassRequest'
  *     responses:
  *       200:
  *         description: Class updated successfully
  *         schema:
- *           $ref: '#/definitions/Class'
+ *           $ref: '#/components/schemas/Class'
  *       400:
  *         description: Bad Request
  *       401:
@@ -451,7 +444,7 @@ router.post('/:id/roadmaps', protect, classController.addRoadmapToClass);
  *       200:
  *         description: Successful operation
  *         schema:
- *           $ref: '#/definitions/Class'
+ *           $ref: '#/components/schemas/Class'
  *       401:
  *         description: Unauthorized
  *       404:
@@ -512,5 +505,31 @@ router.get('/my-class-info/:classId', protect, classController.getClassInfoByUse
 router.post('/join-by-code', protect, classController.joinClassByCode);
 
 router.get('/gen-code', protect)
+
+/**
+ * @swagger
+ * /class/gen-code:
+ *   get:
+ *     summary: Generate a new class code
+ *     tags: [Class Management]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully generated a new class code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: string
+ *                   description: The newly generated class code
+ *                   example: "ABC123XYZ"
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
 
 module.exports = router;

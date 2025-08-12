@@ -34,8 +34,30 @@ const { protect } = require('../middleware/authMiddleware');
  *     responses:
  *       201:
  *         description: The user exercise result was successfully created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 exerciseId:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 answer:
+ *                   type: string
+ *                 isCorrect:
+ *                   type: boolean
+ *                 submittedAt:
+ *                   type: string
+ *                   format: date-time
  *       400:
  *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.post('/', protect, validateRequest(createUserExerciseResult), UserExerciseResultController.createUserExerciseResult);
 
@@ -45,6 +67,8 @@ router.post('/', protect, validateRequest(createUserExerciseResult), UserExercis
  *   get:
  *     summary: Get a user exercise result by ID
  *     tags: [UserExerciseResult]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -55,8 +79,30 @@ router.post('/', protect, validateRequest(createUserExerciseResult), UserExercis
  *     responses:
  *       200:
  *         description: The user exercise result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 exerciseId:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 answer:
+ *                   type: string
+ *                 isCorrect:
+ *                   type: boolean
+ *                 submittedAt:
+ *                   type: string
+ *                   format: date-time
  *       404:
  *         description: User exercise result not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.get('/:id', UserExerciseResultController.getUserExerciseResult);
 
@@ -87,8 +133,30 @@ router.get('/:id', UserExerciseResultController.getUserExerciseResult);
  *     responses:
  *       200:
  *         description: The user exercise result was successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 exerciseId:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 answer:
+ *                   type: string
+ *                 isCorrect:
+ *                   type: boolean
+ *                 submittedAt:
+ *                   type: string
+ *                   format: date-time
  *       404:
  *         description: User exercise result not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */
 router.put('/:id', protect, validateRequest(updateUserExerciseResult), UserExerciseResultController.updateUserExerciseResult);
 
@@ -98,6 +166,8 @@ router.put('/:id', protect, validateRequest(updateUserExerciseResult), UserExerc
  *   delete:
  *     summary: Delete a user exercise result by ID
  *     tags: [UserExerciseResult]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -108,8 +178,12 @@ router.put('/:id', protect, validateRequest(updateUserExerciseResult), UserExerc
  *     responses:
  *       204:
  *         description: The user exercise result was successfully deleted
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: User exercise result not found
+ *       500:
+ *         description: Internal Server Error
  */
 router.delete('/:id', UserExerciseResultController.deleteUserExerciseResult);
 

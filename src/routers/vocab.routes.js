@@ -27,6 +27,23 @@ const { getAllVocabsSchema, createVocabSchema, updateVocabSchema, getVocabsByTop
  *     responses:
  *       200:
  *         description: A list of vocabs with user's learning progress
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   word:
+ *                     type: string
+ *                   meaning:
+ *                     type: string
+ *                   is_learned:
+ *                     type: boolean
+ *                   topicId:
+ *                     type: string
  *       401:
  *         description: Unauthorized
  *       500:
@@ -52,6 +69,14 @@ router.get('/my-vocabs', protect, vocabController.getMyVocabLearningProgress);
  *     responses:
  *       200:
  *         description: Vocabulary marked as learned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vocabulary marked as learned successfully"
  *       401:
  *         description: Unauthorized
  *       404:
@@ -84,7 +109,7 @@ router.put('/mark-done/:vocabId', protect, vocabController.markVocabAsDone);
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/vocabs'
+ *                 $ref: '#/components/schemas/Vocab'
  */
 
 router.get('/:id', protect, authorizeRoles(['admin', 'staff']), vocabController.getVocabById);
@@ -136,7 +161,30 @@ router.get('/:id', protect, authorizeRoles(['admin', 'staff']), vocabController.
  *     responses:
  *       200:
  *         description: A paginated list of vocabs
- */
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Vocab'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     size:
+ *                       type: integer
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Internal Server Error */
 
 router.post('/search', protect, authorizeRoles(['admin', 'staff']), validateRequest(getAllVocabsSchema), vocabController.getAllVocabs);
 /**
@@ -154,7 +202,7 @@ router.post('/search', protect, authorizeRoles(['admin', 'staff']), validateRequ
  *           schema:
  *             type: object
  *             required:
- *               - nodeId
+ *               - topicId
  *               - word
  *               - meaning
  *             properties:
@@ -171,11 +219,23 @@ router.post('/search', protect, authorizeRoles(['admin', 'staff']), validateRequ
  *               audioUrl:
  *                 type: string
  *               is_know:
- *                 type: boolean,
+ *                 type: boolean
  *                 default: false
  *     responses:
  *       200:
  *         description: Vocab created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Vocab'
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Internal Server Error
  */
 router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(createVocabSchema), vocabController.createVocab);
 
@@ -218,6 +278,17 @@ router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(cr
  *     responses:
  *       200:
  *         description: Vocabs inserted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vocabs inserted successfully"
+ *                 count:
+ *                   type: integer
+ *                   example: 5
  *       400:
  *         description: Bad Request
  *       401:
@@ -269,6 +340,20 @@ router.post('/bulk', protect, vocabController.createManyVocabs);
  *     responses:
  *       200:
  *         description: Vocab updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Vocab'
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Vocab not found
+ *       500:
+ *         description: Internal Server Error
  */
 router.put('/:id', protect, authorizeRoles(['admin', 'staff']), validateRequest(updateVocabSchema), vocabController.updateVocab);
 
@@ -290,6 +375,24 @@ router.put('/:id', protect, authorizeRoles(['admin', 'staff']), validateRequest(
  *     responses:
  *       200:
  *         description: Vocab deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vocab deleted successfully"
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Vocab not found
+ *       500:
+ *         description: Internal Server Error
  */
 router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), vocabController.deleteVocab);
 
@@ -347,6 +450,34 @@ router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), vocabControll
  *     responses:
  *       200:
  *         description: A paginated list of vocabs for the given topic
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Vocab'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     size:
+ *                       type: integer
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Topic not found
+ *       500:
+ *         description: Internal Server Error
  */
 router.post('/topic/:topicId', protect,  vocabController.getVocabsByTopicId);
 
@@ -373,7 +504,7 @@ router.post('/topic/:topicId', protect,  vocabController.getVocabsByTopicId);
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/vocabs'
+ *                 $ref: '#/components/schemas/Vocab'
  */
 router.get('/topic/:topicId/all', protect, vocabController.getAllVocabsByTopicId);
 
@@ -402,6 +533,17 @@ router.get('/topic/:topicId/all', protect, vocabController.getAllVocabsByTopicId
  *     responses:
  *       200:
  *         description: Vocabs generated and saved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vocabs generated and saved successfully"
+ *                 count:
+ *                   type: integer
+ *                   example: 10
  *       400:
  *         description: Bad request, such as missing topicId
  *       404:

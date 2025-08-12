@@ -152,7 +152,7 @@ router.post(
 
 /**
  * @swagger
- * /ai/generate-quiz:
+ * /suggest-quiz:
  *   post:
  *     summary: Generate a quiz question based on a topic and vocabulary
  *     tags: [AI]
