@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, protect } = require('../middleware/authMiddleware');
 const ctrl = require('../controllers/notification/notification.controller');
 
 /**
@@ -48,8 +48,8 @@ const ctrl = require('../controllers/notification/notification.controller');
  *       500:
  *         description: Internal Server Error
  */
-router.get('/', ctrl.listMyNotifications);
-router.patch('/:id/read', ctrl.markAsRead);
+router.get('/', protect, ctrl.listMyNotifications);
+router.patch('/:id/read', protect, ctrl.markAsRead);
 
 /**
  * @swagger

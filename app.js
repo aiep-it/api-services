@@ -60,7 +60,7 @@ app.use('/workspace', wordspaceRoutes);
 app.use('/exercises', exerciseRoutes);
 app.use('/user-exercise-results', userExerciseResultRoutes);
 app.use('/reports', reportRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use('/notifications', notificationRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   swaggerOptions: {
