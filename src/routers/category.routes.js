@@ -106,4 +106,30 @@ router.put('/:id', protect, authorizeRoles(['admin', 'staff']), categoryControll
  */
 router.delete('/:id', protect, authorizeRoles(['admin', 'staff']), categoryController.deleteCategory);
 
+
+/**
+ * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Get a category by ID
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the category to retrieve
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Category object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Category not found
+ */
+router.get('/:id', protect, categoryController.getCategoryById);
+
 module.exports = router;

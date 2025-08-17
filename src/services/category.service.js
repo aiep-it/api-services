@@ -35,3 +35,17 @@ exports.deleteCategory = async (id) => {
     where: { id },
   });
 };
+
+exports.getCategoryById = async (id) => {
+  if (!id) throw new Error('Missing id');
+  return await prisma.category.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      type: true,
+      order: true,
+    },
+  });
+};

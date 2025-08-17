@@ -68,3 +68,16 @@ exports.deleteCategory = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete category.' });
   }
 };
+exports.getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await categoryService.getCategoryById(id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found.' });
+    }
+    return res.status(200).json(category);
+  } catch (error) {
+    console.error('Error fetching category by id:', error.message);
+    return res.status(500).json({ message: 'Failed to retrieve category.' });
+  }
+};

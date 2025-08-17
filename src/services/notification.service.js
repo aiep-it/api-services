@@ -1,17 +1,15 @@
 const prisma = require("../../lib/prisma");
 const { sendEmail } = require("./mailer.service");
 
-// Optional: fallback lấy email từ Clerk nếu DB không có
+
 let clerkUsers = null;
 try {
   ({ users: clerkUsers } = require("@clerk/backend"));
 } catch (_) {
-  // không bắt buộc cài @clerk/backend nếu bạn đã lưu email trong bảng User
+
 }
 
-/**
- * Áo giáp an toàn: ép kiểu primitive trước khi ghi DB
- */
+
 async function createNotification({ userId, title, message, link }) {
   const safeTitle = String(title ?? "");
   const safeMessage = String(message ?? "");
@@ -22,9 +20,7 @@ async function createNotification({ userId, title, message, link }) {
   });
 }
 
-/**
- * Lấy email + tên người dùng (teacher/student)
- */
+
 async function resolveUserContact(userId, fallbackName = "Bạn") {
   const u = await prisma.user.findUnique({
     where: { id: userId },
@@ -61,9 +57,7 @@ async function resolveUserContact(userId, fallbackName = "Bạn") {
   return { email, name };
 }
 
-/**
- * Thông báo khi GIÁO VIÊN được thêm vào lớp
- */
+
 async function notifyTeacherAdded({
   teacherUserId,
   classId,
@@ -74,7 +68,7 @@ async function notifyTeacherAdded({
   const link =
     classLink || `${process.env.APP_URL || ""}/class-room/${classId}`;
 
-  // 1) In-app
+
   await createNotification({
     userId: teacherUserId,
     title: "Bạn đã được thêm vào lớp học",
@@ -82,7 +76,7 @@ async function notifyTeacherAdded({
     link,
   });
 
-  // 2) Realtime (nếu có)
+
   if (typeof realtimeTrigger === "function") {
     await realtimeTrigger(`user-${teacherUserId}`, "notification:new", {
       title: "Bạn đã được thêm vào lớp học",
@@ -91,7 +85,7 @@ async function notifyTeacherAdded({
     });
   }
 
-  // 3) Email (nếu cấu hình)
+
   try {
     const { email, name } = await resolveUserContact(teacherUserId, "Thầy/Cô");
     if (email) {
@@ -172,5 +166,5 @@ async function notifyAddedToClass({
 module.exports = {
   createNotification,
   notifyTeacherAdded,
-  notifyAddedToClass, // 👈 export thêm hàm cho học sinh
+  notifyAddedToClass, 
 };
