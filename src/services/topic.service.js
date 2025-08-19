@@ -91,7 +91,7 @@ exports.getByRoadMapId = async (roadmapId, paggingRequest) => {
   });
 
   if (!topics || topics.length === 0) {
-    throw new Error('No topics found for this roadmap.');
+    return [];
   }
 
   return topics;

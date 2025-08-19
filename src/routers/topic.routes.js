@@ -107,7 +107,7 @@ const { createTopicSchema, updateTopicSchema } = require('../validations/topicRe
 
 router.post('/', protect, authorizeRoles(['admin', 'staff']), validateRequest(createTopicSchema), topicController.createTopic);
 
-router.get('/:topicId', topicController.getTopicById);
+router.post('/ai/suggest', topicController.getSuggestedTopics);
 
 /**
  * @swagger
@@ -134,7 +134,6 @@ router.get('/:topicId', topicController.getTopicById);
  *       404:
  *         description: Roadmap not found
  */
-router.get('/list/:roadmapId', topicController.getTopicsByRoadmapId);
 
 router.put('/:topicId', protect, validateRequest(updateTopicSchema), topicController.updateTopic);
 
@@ -160,6 +159,8 @@ router.put('/:topicId', protect, validateRequest(updateTopicSchema), topicContro
  *       500:
  *         description: Internal server error
  */
-router.post('/ai/suggest', topicController.getSuggestedTopics);
+router.get('/list/:roadmapId', topicController.getTopicsByRoadmapId);
+
+router.get('/:topicId', topicController.getTopicById);
 
 module.exports = router;
