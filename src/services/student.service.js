@@ -32,6 +32,7 @@ module.exports = {
     });
 
     if (currentUser && currentUser.clerkId) {
+    
       await clerkClient.users.updateUserMetadata(currentUser.clerkId, {
         publicMetadata: {
           fullName: fullName,
@@ -40,14 +41,18 @@ module.exports = {
       });
     } else {
       await clerkClient.users.createUser({
-        emailAddress: email,
+        email_addresses: email,
         first_name: fullName,
         last_name: fullName,
+        username: `${Date.now()}_parent`,
+        password: DEFAULT_PASSWORD,
         publicMetadata: {
           fullName: fullName,
           role: "parent",
         },
+        skipPasswordChecks: true, // Skip password checks for initial creation
       });
+     
     }
     return {
       message: "Parent account created or updated successfully.",

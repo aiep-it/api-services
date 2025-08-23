@@ -131,7 +131,7 @@ exports.createClerkUser = async (userData) => {
   const { email, password, first_name, last_name, fullName, username, status, role } = userData;
 
   const user = await clerkClient.users.createUser({
-    emailAddress: email,
+    email_addresses: email,
     password: password,
     first_name: first_name,
     last_name: last_name,
@@ -150,7 +150,7 @@ exports.createClerkUser = async (userData) => {
 exports.sendInvite = async (email, role) => {
   try {
     const invitation = await clerkClient.invitations.createInvitation({
-      emailAddress: email,
+      email_address: email,
       publicMetadata: {
         role: role,
       },
