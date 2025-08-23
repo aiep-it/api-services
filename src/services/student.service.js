@@ -106,7 +106,7 @@ module.exports = {
         if (payload.parentEmail) {
           console.log("Sending email to parent:", payload.parentEmail);
           const encodedUsername = Buffer.from(username).toString("base64");
-          const activationLink = `${process.env.APP_BASE_URL}/api/students/activate/${encodedUsername}`;
+          const activationLink = `https://dxri5rqql2ood.cloudfront.net/api/students/activate/${encodedUsername}`;
 
           // insert parent account
           this.createParentAccount({
