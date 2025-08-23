@@ -42,6 +42,7 @@ module.exports = {
       await clerkClient.users.createUser({
         emailAddress: email,
         first_name: fullName,
+        last_name: fullName,
         publicMetadata: {
           fullName: fullName,
           role: "parent",
