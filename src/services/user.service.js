@@ -1,6 +1,8 @@
 // src/services/user.service.js
 const prisma = require("../../lib/prisma");
+const { Resend } = require("resend");  
 const { createClerkClient } = require("@clerk/backend");
+const { USER_STATUS } = require("../constant/enums/index");
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -92,6 +94,28 @@ exports.updateUserMetadata = async (userId, role) => {
   return { message: "Metadata & role updated successfully" };
 };
 
+
+exports.updateUserMetadataByUserId = async (userId, metadata) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { clerkId: true },
+  });
+
+  if (!user || !user.clerkId) {
+    throw new Error("Clerk ID not found for this user");
+  }
+
+  // const currentMetatadata = await clerkClient.users.getUserMetadata(user.clerkId);
+  const userClerk = await clerkClient.users.getUser(user.clerkId);
+  const { publicMetadata: currentMetatadata } = userClerk;
+
+  await clerkClient.users.updateUserMetadata(user.clerkId, {
+    publicMetadata: { currentMetatadata, ...metadata },
+  });
+
+  return { message: "Metadata & role updated successfully" };
+};
+
 // src/services/user.service.js
 exports.getUsersWithClerkId = async () => {
   return prisma.user.findMany({
@@ -104,11 +128,7 @@ exports.getUsersWithClerkId = async () => {
 };
 
 exports.createClerkUser = async (userData) => {
-  const { email, password, first_name, last_name, fullName, username } = userData;
-
-  console.log("Creating Clerk user with data:", {
-    ...userData
-  });
+  const { email, password, first_name, last_name, fullName, username, status, role } = userData;
 
   const user = await clerkClient.users.createUser({
     emailAddress: email,
@@ -118,7 +138,8 @@ exports.createClerkUser = async (userData) => {
     username: username,
     publicMetadata: {
       fullName: fullName,
-      role: "student",
+      role: role || "student",
+      status: status || USER_STATUS.ACTIVATE,
     },
     skipPasswordChecks: true, // Skip password checks for demo purposes
     
@@ -150,4 +171,101 @@ exports.getInvitations = async () => {
     console.error("Error fetching Clerk invitations:", error);
     throw new Error(`Failed to fetch invitations: ${error.message}`);
   }
+};
+
+exports.sendEmail = async (email, subject, body) => {
+  try {
+    const resend = new Resend('re_HYpmHEWV_CV5wp2ZPHTsBpsjd4NXtWaeM');
+    const data = await resend.emails.send({
+      from: 'onboarding@resend.dev', // IMPORTANT: Replace with your verified sender email
+      to: email,
+      subject: subject,
+      html: body,
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Error sending email via Resend:", error);
+    throw new Error(`Failed to send email: ${error.message}`);
+  }
+};
+
+exports.getMyChildrenByParentEmail = async (parentEmail) => {
+  return await prisma.user.findMany({
+    where: {
+      role: "student",
+      parentEmail: parentEmail,
+    },
+    select: {
+      id: true,
+      clerkId: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      fullName: true,
+      username: true,
+      status: true,
+      createdAt: true,
+      userClasses: {
+        select: {
+          class: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+              level: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          feedbackReceived: true,
+        },
+      },
+    },
+  });
+};
+
+exports.getStudentFeedback = async (studentId, parentEmail) => {
+  // 1. Verify that the student belongs to this parent
+  const student = await prisma.user.findUnique({
+    where: {
+      id: studentId,
+      parentEmail: parentEmail,
+      role: "student",
+    },
+  });
+
+  if (!student) {
+    throw new Error("Student not found or does not belong to this parent.");
+  }
+
+  // 2. Get feedback for the student
+  const feedbackList = await prisma.feedBackStudent.findMany({
+    where: {
+      studentId: studentId,
+    },
+    include: {
+      teacher: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
+      class: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+  });
+
+  return feedbackList;
 };

@@ -19,6 +19,19 @@ class ReportController {
       next(error);
     }
   }
+  async getStdReport(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const report = await ReportService.getSelfReport(userId);
+      res.status(200).json({
+        userId,
+        generatedAt: new Date(),
+        ...report,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
   async getExerciseResultReportByUser(req, res, next) {
     try {
       const { userId } = req.params;

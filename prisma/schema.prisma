@@ -20,17 +20,21 @@ model User {
   fullName    String?
   parentName  String?
   parentPhone String?
+  parentEmail String?
   password    String?
   username    String?    @unique
   Exercise    Exercise[]
   roadmap     Roadmap?
 
+  status             UserStatus @default(ACTIVATE)
   userClasses        UserClass[]
   userExerciseResult UserExerciseResult[]
   UserRoadmap        UserRoadmap[]
   userTopicProgress  UserTopicProgress[]
   userVocabProgress  UserVocabProgress[]
   notifications      Notification[]
+  feedbackGiven      FeedBackStudent[] @relation(name: "TeacherFeedback")
+  feedbackReceived   FeedBackStudent[] @relation(name: "StudentFeedback")
 }
 
 model Class {
@@ -43,6 +47,7 @@ model Class {
   updatedAt   DateTime       @updatedAt
   roadmaps    ClassRoadmap[]
   userClasses UserClass[]
+  feedbacks   FeedBackStudent[]
 }
 
 model UserClass {
@@ -254,6 +259,20 @@ model Exercise {
   @@index([userId])
 }
 
+model FeedBackStudent {
+  id                 String               @id @default(cuid())
+  studentId              String
+  teacherId          String
+  classId            String
+  class               Class         @relation(fields: [classId], references: [id])
+  student             User          @relation(name: "StudentFeedback", fields: [studentId], references: [id]) 
+  teacher             User          @relation(name: "TeacherFeedback", fields: [teacherId], references: [id]) 
+  content             String
+
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+}
+
 enum ExerciseType {
   text
   image
@@ -286,4 +305,9 @@ enum ClassLevel {
 enum UserClassRole {
   TEACHER
   STUDENT
+}
+
+enum UserStatus {
+  ACTIVATE
+  DEACTIVATE
 }

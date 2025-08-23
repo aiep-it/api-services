@@ -91,21 +91,21 @@ async importStudentsExcel(req, res) {
       next(error);
     }
   },
-};
 
+  // GET /api/students/activate/:token
+  async activateStudent(req, res) {
+    try {
+      const { token } = req.params;
+      const username = Buffer.from(token, 'base64').toString('utf8');
+      if (!username) {
+        return res.status(400).json({ error: 'Invalid activation token.' });
+      }
 
-exports.enrollRoadmap = async (req, res, next) => {
-  try {
-    const { roadmapId } = req.body;
-    const userId = req.user.id;
-
-    if (!roadmapId) {
-      return res.status(400).json({ message: 'Roadmap ID is required' });
+      const result = await studentService.activateStudent(username);
+      res.status(200).json({ message: 'Student activated successfully.', student: result });
+    } catch (err) {
+      console.error("Error activating student:", err);
+      res.status(400).json({ error: err.message });
     }
-
-    const enrollment = await studentService.enrollRoadmap(userId, roadmapId);
-    res.status(201).json(enrollment);
-  } catch (error) {
-    next(error);
-  }
+  },
 };

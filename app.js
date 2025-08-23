@@ -30,6 +30,8 @@ const classRoutes = require('./src/routers/class.routes.js');
 const userExerciseResultRoutes = require('./src/routers/user.exercise.result.routes.js');
 const reportRoutes = require('./src/routers/report.routes.js');
 const notificationRoutes =require('./src/routers/notification.routes');
+const parentRoutes = require('./src/routers/parent.routes');
+const teacherRoutes = require('./src/routers/teacher.routes');
 app.use(cors({
   origin: `http://localhost:3000`, //default ferontend URL
   
@@ -61,6 +63,8 @@ app.use('/exercises', exerciseRoutes);
 app.use('/user-exercise-results', userExerciseResultRoutes);
 app.use('/reports', reportRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/parent', parentRoutes);
+app.use('/teachers', teacherRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   swaggerOptions: {

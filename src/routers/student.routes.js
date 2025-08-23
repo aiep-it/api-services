@@ -72,6 +72,29 @@
 
     /**
      * @swagger
+     * /student/activate/{token}:
+     *   get:
+     *     summary: Activate a student account via base64 encoded token
+     *     tags: [Student]
+     *     parameters:
+     *       - in: path
+     *         name: token
+     *         required: true
+     *         schema:
+     *           type: string
+     *         description: Base64 encoded token containing student activation information
+     *     responses:
+     *       200:
+     *         description: Student activated successfully
+     *       400:
+     *         description: Invalid or expired token
+     *       500:
+     *         description: Server error
+     */
+    router.get("/activate/:token", studentController.activateStudent);
+
+    /**
+     * @swagger
      * /student:
      *   get:
      *     summary: Get all students

@@ -339,6 +339,9 @@ exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
                   id: true,
                   fullName: true,
                   email: true,
+                  parentName: true,
+                  username: true,
+                  parentEmail: true,
                 },
               },
             },
@@ -364,8 +367,6 @@ exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
 
   if (!userClassEntry || !userClassEntry.class) return null;
 
-  console.log("User class entry found:", userClassEntry);
-
   const cls = userClassEntry.class;
 
   const teachers = cls.userClasses
@@ -382,6 +383,9 @@ exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
       id: uc.user.id,
       fullName: uc.user.fullName,
       email: uc.user.email,
+      parentName: uc.user.parentName,
+      username: uc.user.username,
+      parentEmail: uc.user.parentEmail,
     }));
 
   return {
