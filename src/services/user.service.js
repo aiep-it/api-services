@@ -1,12 +1,15 @@
 // src/services/user.service.js
 const prisma = require("../../lib/prisma");
-const { Resend } = require("resend");  
 const { createClerkClient } = require("@clerk/backend");
 const { USER_STATUS } = require("../constant/enums/index");
-
+const nodemailer = require("nodemailer");
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
 });
+
+
+
+const RECIPIENT_EMAIL = "<RECIPIENT@EMAIL.COM>";
 
 exports.getAllUsers = async () => {
   return await prisma.user.findMany({
@@ -94,7 +97,6 @@ exports.updateUserMetadata = async (userId, role) => {
   return { message: "Metadata & role updated successfully" };
 };
 
-
 exports.updateUserMetadataByUserId = async (userId, metadata) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -128,7 +130,16 @@ exports.getUsersWithClerkId = async () => {
 };
 
 exports.createClerkUser = async (userData) => {
-  const { email, password, first_name, last_name, fullName, username, status, role } = userData;
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    fullName,
+    username,
+    status,
+    role,
+  } = userData;
 
   const user = await clerkClient.users.createUser({
     email_addresses: email,
@@ -142,7 +153,6 @@ exports.createClerkUser = async (userData) => {
       status: status || USER_STATUS.ACTIVATE,
     },
     skipPasswordChecks: true, // Skip password checks for demo purposes
-    
   });
   return user;
 };
@@ -154,7 +164,7 @@ exports.sendInvite = async (email, role) => {
       publicMetadata: {
         role: role,
       },
-      redirectUrl: "https://dxri5rqql2ood.cloudfront.net/"
+      redirectUrl: "https://dxri5rqql2ood.cloudfront.net/",
     });
     return invitation;
   } catch (error) {
@@ -175,10 +185,16 @@ exports.getInvitations = async () => {
 
 exports.sendEmail = async (email, subject, body) => {
   try {
-    const resend = new Resend('re_HYpmHEWV_CV5wp2ZPHTsBpsjd4NXtWaeM');
-    const data = await resend.emails.send({
-      from: 'onboarding@resend.dev', // IMPORTANT: Replace with your verified sender email
-      to: email,
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "testmailsending165@gmail.com",       // Gmail của bạn
+        pass: "axgshrkrxxljzogf",          // App Password (không phải mật khẩu Gmail thường)
+      },
+    });
+    let data = await transporter.sendMail({
+      from: 'Snap Learning <no-reply@snaplearn.com>', // sender
+      to: email,             // receiver
       subject: subject,
       html: body,
     });
