@@ -33,11 +33,11 @@ const notificationRoutes =require('./src/routers/notification.routes');
 const parentRoutes = require('./src/routers/parent.routes');
 const teacherRoutes = require('./src/routers/teacher.routes');
 app.use(cors({
-  origin: `http://localhost:3000`, //default ferontend URL
-  
-  credentials: true,
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+  credentials: true
 }));
-
 
 app.use(express.json());
 
