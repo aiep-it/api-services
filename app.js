@@ -32,6 +32,7 @@ const reportRoutes = require('./src/routers/report.routes.js');
 const notificationRoutes =require('./src/routers/notification.routes');
 const parentRoutes = require('./src/routers/parent.routes');
 const teacherRoutes = require('./src/routers/teacher.routes');
+
 const statsRoutes = require('./src/routers/stats.routes');
 
 // app.use(cors({
