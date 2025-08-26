@@ -22,7 +22,7 @@ exports.getAllRoadmaps = async (userId, userRole) => {
       where: {
         userId: userId,
         role: 'STUDENT',
-        is_deleted: false,
+        // is_deleted: false,
       },
       include: {
         class: {

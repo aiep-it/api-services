@@ -60,21 +60,24 @@ exports.updateClass = async (req, res) => {
   }
 };
 
-// controllers/class.controller.js
+// controllers/class.controller.js (trích)
 exports.deleteClass = async (req, res) => {
   try {
-    await classService.deleteClass(req.params.id);
-    res.status(204).send();
-  } catch (error) {
-    console.error('❌ Error in deleteClass:', error);
-
-    if (error.message?.includes('not found')) {
-      return res.status(404).json({ message: 'Lớp học không tồn tại hoặc đã bị xoá' });
-    }
-
-    res.status(500).json({ message: 'Không thể xoá lớp học vì có liên kết dữ liệu' });
+    const { id: classId } = req.params;
+    await prisma.$transaction([
+      prisma.userClass.deleteMany({ where: { classId } }),
+      prisma.classRoadmap.deleteMany({ where: { classId } }),
+      prisma.feedBackStudent.deleteMany({ where: { classId } }),
+      prisma.class.delete({ where: { id: classId } }),
+      // Notification.classId sẽ tự SetNull -> không cần update
+    ]);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Failed to delete class" });
   }
 };
+
 
 exports.addTeacherToClass = async (req, res) => {
   try {

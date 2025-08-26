@@ -218,29 +218,17 @@ exports.deleteClass = async (classId) => {
 // class.service.js
 
 exports.addTeacherToClass = async (classId, teacherId) => {
-  // 1) Tạo quan hệ
-  const uc = await prisma.userClass.create({
-    data: {
-      classId,
-      userId: teacherId,       
-      role: 'TEACHER',
-    },
-  });
+  const uc = await prisma.userClass.create({ data: { classId, userId: teacherId, role: "TEACHER" } });
 
-  // 2) Lấy tên lớp để thông báo
-  const cls = await prisma.class.findUnique({
-    where: { id: classId },
-    select: { id: true, name: true },
-  });
+  const cls = await prisma.class.findUnique({ where: { id: classId }, select: { id: true, name: true } });
+  if (!cls) return uc;
 
-  // 3) Gửi thông báo (in-app + optional email + optional realtime)
-  await notifyTeacherAdded({
-    teacherUserId: teacherId,      // User.id (UUID)
+  notifyTeacherAdded({
+    teacherUserId: teacherId,
     classId: cls.id,
     className: cls.name,
-    classLink: `${process.env.APP_URL}/class-room/${cls.id}`,
-    // realtimeTrigger: (channel, event, payload) => pusherServer.trigger(channel, event, payload),
-  });
+    classLink: process.env.APP_URL ? `${process.env.APP_URL}/class-room/${cls.id}` : null,
+  }).catch((e) => console.error("Notify teacher failed:", e));
 
   return uc;
 };
@@ -263,36 +251,27 @@ exports.removeTeacherFromClass = async (classId, teacherId) => {
 };
 
 exports.addStudentsToClass = async (classId, studentIds) => {
-  // 1) Tạo quan hệ
   const result = await prisma.$transaction(
-    studentIds.map((id) =>
-      prisma.userClass.create({
-        data: { classId, userId: id, role: 'STUDENT' },
-      })
-    )
+    studentIds.map((id) => prisma.userClass.create({ data: { classId, userId: id, role: "STUDENT" } }))
   );
 
-  // 2) Lấy tên lớp chỉ 1 lần
-  const cls = await prisma.class.findUnique({
-    where: { id: classId },
-    select: { id: true, name: true },
-  });
+  const cls = await prisma.class.findUnique({ where: { id: classId }, select: { id: true, name: true } });
+  if (!cls) return result;
 
-  // 3) Gửi thông báo cho từng student (không block: allSettled)
   Promise.allSettled(
     studentIds.map((sid) =>
       notifyAddedToClass({
         userId: sid,
         classId: cls.id,
         className: cls.name,
-      //  classLink: `${process.env.APP_URL}/class-room/${cls.id}`,
-        // realtimeTrigger: ...
+        classLink: process.env.APP_URL ? `${process.env.APP_URL}/class-room/${cls.id}` : null,
       })
     )
-  ).catch((e) => console.error('Notify students failed:', e));
+  ).catch((e) => console.error("Notify students failed:", e));
 
   return result;
 };
+
 
 exports.removeStudentFromClass = async (classId, studentId) => {
   return prisma.userClass.delete({
@@ -468,7 +447,7 @@ exports.getClassesByUserId = async (userId) => {
 };
 
 exports.joinClassByCode = async (userId, classCode) => {
-  // 1) Tìm lớp theo code
+
   const cls = await prisma.class.findUnique({
     where: { code: classCode },
     select: { id: true, name: true },
@@ -502,11 +481,11 @@ exports.joinClassByCode = async (userId, classCode) => {
   
 
   notifyAddedToClass({
-    userId,                // đây là User.id (UUID) theo schema của bạn
+    userId,                
     classId: cls.id,
     className: cls.name,
     classLink: `${process.env.APP_URL}/classes/${cls.id}`,  
-    // realtimeTrigger: (ch, ev, data) => pusherServer.trigger(ch, ev, data), // nếu có realtime
+    // realtimeTrigger: (ch, ev, data) => pusherServer.trigger(ch, ev, data), 
   }).catch((e) => console.error('Notify student (join by code) failed:', e));
 
   return created;
