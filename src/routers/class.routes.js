@@ -3,14 +3,6 @@ const router = express.Router();
 const classController = require('../controllers/class/class.controller');
 const { protect } = require('../middleware/authMiddleware');
 
-
-/**
- * @swagger
- * tags:
- *   name: Class Management
- *   description: API for managing classes
- */
-
 /**
  * @swagger
  * /class/all-my-classes:
@@ -18,23 +10,33 @@ const { protect } = require('../middleware/authMiddleware');
  *     summary: Get all classes for the authenticated user
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Successful operation
- *         schema:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/ClassInfoWithRole'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ClassInfoWithRole'
+ *             examples:
+ *               sample:
+ *                 value:
+ *                   - class:
+ *                       id: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *                       name: "Lớp Flyers A"
+ *                       level: "FLYERS"
+ *                       code: "FLY-A-01"
+ *                     role: "TEACHER"
  *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden (if user is not admin/staff)
+ *         description: Missing/invalid token
  *       404:
- *         description: User not found
+ *         description: User not found (clerkId không map được sang user nội bộ)
  *       500:
  *         description: Internal Server Error
  */
+
 router.get('/all-my-classes', protect, classController.getClassesByUserId);
 
 /**
@@ -74,60 +76,56 @@ router.get('/', protect, classController.getAllClasses);
  * @swagger
  * /class:
  *   post:
- *     summary: Create a new class
+ *     summary: Create a new class (server auto-generates code)
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/CreateClassRequest'
+ *           examples:
+ *             minimal:
+ *               summary: Tối thiểu
+ *               value:
+ *                 name: "Lớp Flyers A"
+ *                 level: "FLYERS"
+ *             full:
+ *               summary: Đầy đủ
+ *               value:
+ *                 name: "Lớp Flyers A"
+ *                 description: "Lớp nâng cao Flyers A"
+ *                 level: "FLYERS"
+ *                 teacherIds:
+ *                   - "6d0d63f9-f3cc-4d77-b385-ece1d50c1bcc"
+ *                 roadmapIds:
+ *                   - "cmdoqw8p20001kaec43ahmjcy"
  *     responses:
  *       201:
  *         description: Class created successfully
- *         schema:
- *           $ref: '#/components/schemas/Class'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Class'
  *       400:
  *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Unauthorized
  *       500:
  *         description: Internal Server Error
  */
+
+
 router.post('/', protect, classController.createClass);
 
-/**
- * @swagger
- * /class/{id}:
- *   get:
- *     summary: Get class by ID
- *     tags: [Class Management]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: ID of the class to retrieve
- *     responses:
- *       200:
- *         description: Successful operation
- *         schema:
- *           $ref: '#/components/schemas/Class'
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Class not found
- *       500:
- *         description: Internal Server Error
- */
-router.get('/:id', protect, classController.getClassById);
 
-/**
+/*
  * @swagger
  * /class/{id}:
  *   put:
@@ -154,6 +152,69 @@ router.get('/:id', protect, classController.getClassById);
  *           $ref: '#/components/schemas/Class'
  *       400:
  *         description: Bad Request
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Class not found
+ *       500:
+ *         description: Internal Server Error
+ */
+ 
+router.get('/:id', protect, classController.getClassById);
+
+/*
+/**
+ * @swagger
+ * /class/{id}:
+ *   put:
+ *     summary: Update a class (full/semantic update; server keeps auto-generated code)
+ *     tags: [Class Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *           example: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *         description: Class ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateClassRequest'
+ *           examples:
+ *             change-name-level:
+ *               summary: Đổi tên + level
+ *               value:
+ *                 name: "Lớp Movers B"
+ *                 level: "MOVERS"
+ *                 description: "Chuyển từ Flyers sang Movers"
+ *             assign-teachers-roadmaps:
+ *               summary: Gán lại giáo viên & roadmap (nếu service của bạn cho phép cập nhật)
+ *               value:
+ *                 name: "Lớp Starters A"
+ *                 level: "STARTERS"
+ *                 teacherIds:
+ *                   - "6d0d63f9-f3cc-4d77-b385-ece1d50c1bcc"
+ *                 roadmapIds:
+ *                   - "cmdoqw8p20001kaec43ahmjcy"
+ *     responses:
+ *       200:
+ *         description: Class updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Class'
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Unauthorized
  *       404:
@@ -194,80 +255,76 @@ router.delete('/:id', protect, classController.deleteClass);
  * @swagger
  * /class/{id}/add-teacher:
  *   patch:
- *     summary: Add teacher to class
+ *     summary: Add a teacher to class
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: ID of the class
- *       - in: body
- *         name: body
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             teacherId:
- *               type: string
- *               description: ID of the teacher to add
- *           required:
- *             - teacherId
+ *           format: uuid
+ *           example: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [teacherId]
+ *             properties:
+ *               teacherId:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "6d0d63f9-f3cc-4d77-b385-ece1d50c1bcc"
  *     responses:
- *       200:
- *         description: Teacher added successfully
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Class or teacher not found
- *       500:
- *         description: Internal Server Error
+ *       200: { description: Teacher added successfully }
+ *       400: { description: Bad Request }
+ *       401: { description: Unauthorized }
+ *       404: { description: Class or teacher not found }
+ *       500: { description: Internal Server Error }
  */
+
 router.patch('/:id/add-teacher', protect, classController.addTeacherToClass);
 
 /**
  * @swagger
  * /class/{id}/remove-teacher:
  *   patch:
- *     summary: Remove teacher from class
+ *     summary: Remove a teacher from class
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: ID of the class
- *       - in: body
- *         name: body
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             teacherId:
- *               type: string
- *               description: ID of the teacher to remove
- *           required:
- *             - teacherId
+ *           format: uuid
+ *           example: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [teacherId]
+ *             properties:
+ *               teacherId:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "6d0d63f9-f3cc-4d77-b385-ece1d50c1bcc"
  *     responses:
- *       200:
- *         description: Teacher removed successfully
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Class or teacher not found
- *       500:
- *         description: Internal Server Error
+ *       200: { description: Teacher removed successfully }
+ *       400: { description: Bad Request }
+ *       401: { description: Unauthorized }
+ *       404: { description: Class or teacher not found }
+ *       500: { description: Internal Server Error }
  */
+
 router.patch('/:id/remove-teacher', protect, classController.removeTeacherFromClass);
 
 /**
@@ -277,39 +334,39 @@ router.patch('/:id/remove-teacher', protect, classController.removeTeacherFromCl
  *     summary: Add students to class
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: ID of the class
- *       - in: body
- *         name: body
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             studentIds:
- *               type: array
- *               items:
- *                 type: string
- *               description: Array of student IDs to add
- *           required:
- *             - studentIds
+ *           format: uuid
+ *           example: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [studentIds]
+ *             properties:
+ *               studentIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *                 example:
+ *                   - "dcc1ca14-6280-4f19-9177-77f605751b60"
+ *                   - "2b5d0a76-6c1b-4c0f-9ef2-111111111111"
  *     responses:
- *       200:
- *         description: Students added successfully
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Class not found
- *       500:
- *         description: Internal Server Error
+ *       200: { description: Students added successfully }
+ *       400: { description: Bad Request }
+ *       401: { description: Unauthorized }
+ *       404: { description: Class not found }
+ *       500: { description: Internal Server Error }
  */
+
 router.patch('/:id/add-students', protect, classController.addStudentsToClass);
 
 /**
@@ -349,80 +406,74 @@ router.delete('/:id/remove-student/:studentId', protect, classController.removeS
  * @swagger
  * /class/{id}/remove-roadmap:
  *   patch:
- *     summary: Remove roadmap from class
+ *     summary: Remove a roadmap from class
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: ID of the class
- *       - in: body
- *         name: body
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             roadmapId:
- *               type: string
- *               description: ID of the roadmap to remove
- *           required:
- *             - roadmapId
+ *           format: uuid
+ *           example: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [roadmapId]
+ *             properties:
+ *               roadmapId:
+ *                 type: string
+ *                 example: "cmdoqw8p20001kaec43ahmjcy"
  *     responses:
- *       200:
- *         description: Roadmap removed successfully
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Class or roadmap not found
- *       500:
- *         description: Internal Server Error
+ *       200: { description: Roadmap removed successfully }
+ *       400: { description: Bad Request }
+ *       401: { description: Unauthorized }
+ *       404: { description: Class or roadmap not found }
+ *       500: { description: Internal Server Error }
  */
+
 router.patch('/:id/remove-roadmap', protect, classController.removeRoadmapFromClass);
 
 /**
  * @swagger
  * /class/{id}/roadmaps:
  *   post:
- *     summary: Add roadmap to class
+ *     summary: Add a roadmap to class
  *     tags: [Class Management]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: ID of the class
- *       - in: body
- *         name: body
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             roadmapId:
- *               type: string
- *               description: ID of the roadmap to add
- *           required:
- *             - roadmapId
+ *           format: uuid
+ *           example: "8d67c480-56a2-4a30-9c89-506419181d5a"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [roadmapId]
+ *             properties:
+ *               roadmapId:
+ *                 type: string
+ *                 example: "cmdoqw8p20001kaec43ahmjcy"
  *     responses:
- *       200:
- *         description: Roadmap added successfully
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Class or roadmap not found
- *       500:
- *         description: Internal Server Error
+ *       200: { description: Roadmap added successfully }
+ *       400: { description: Bad Request }
+ *       401: { description: Unauthorized }
+ *       404: { description: Class or roadmap not found }
+ *       500: { description: Internal Server Error }
  */
+
 router.post('/:id/roadmaps', protect, classController.addRoadmapToClass);
 
 /**

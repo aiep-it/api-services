@@ -15,7 +15,7 @@
       "type": "apiKey",
       "name": "Authorization",
       "in": "header",
-      "description": "Bearer token"
+      "description": "Format: Bearer <JWT-from-Clerk>"
     }
   },
   "paths": {

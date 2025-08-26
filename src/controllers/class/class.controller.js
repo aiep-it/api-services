@@ -10,6 +10,7 @@ exports.getAllClasses = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 exports.addRoadmapToClass = async (req, res) => {
   try {
     const classId = req.params.id;
