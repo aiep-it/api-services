@@ -123,3 +123,66 @@ exports.addRoadmapToClass = async (classId, roadmapIds) => {
 
   return results;
 };
+
+exports.getStudentFeedbackByClass = async (teacherId, studentId, classId) => {
+  // 1. Verify that the teacher is associated with the class (optional, but good for security)
+  // This assumes a teacher can only view feedback for students in their classes.
+  const teacherClassEntry = await prisma.userClass.findUnique({
+    where: {
+      userId_classId: {
+        userId: teacherId,
+        classId: classId,
+      },
+      role: "TEACHER",
+    },
+  });
+
+  if (!teacherClassEntry) {
+    throw new Error("Teacher is not associated with this class.");
+  }
+
+  // 2. Verify that the student is in the class
+  const studentClassEntry = await prisma.userClass.findUnique({
+    where: {
+      userId_classId: {
+        userId: studentId,
+        classId: classId,
+      },
+      role: "STUDENT",
+    },
+  });
+
+  if (!studentClassEntry) {
+    throw new Error("Student is not in this class.");
+  }
+
+  // 3. Get feedback for the student in this class, given by this teacher
+  const feedbackList = await prisma.feedBackStudent.findMany({
+    where: {
+      studentId: studentId,
+      classId: classId,
+      teacherId: teacherId,
+    },
+    include: {
+      teacher: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
+      class: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+  });
+
+  return feedbackList;
+};

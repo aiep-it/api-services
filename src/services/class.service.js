@@ -329,6 +329,11 @@ exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
                   parentName: true,
                   username: true,
                   parentEmail: true,
+                  _count: {
+                    select: {
+                      feedbackReceived: true,
+                    },
+                  },
                 },
               },
             },
@@ -345,6 +350,11 @@ exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
                   },
                 },
               },
+            },
+          },
+          _count: {
+            select: {
+              feedbacks: true,
             },
           },
         },
@@ -373,6 +383,7 @@ exports.getClassInfoByUserIdAndClassId = async (userId, classId) => {
       parentName: uc.user.parentName,
       username: uc.user.username,
       parentEmail: uc.user.parentEmail,
+      feedbackCount: uc.user._count.feedbackReceived, // Add feedback count
     }));
 
   return {

@@ -228,7 +228,43 @@ module.exports = {
   },
 
   async deleteStudent(id) {
-    return prisma.user.delete({ where: { id } });
+    const userToDelete = await prisma.user.findUnique({
+      where: { id: id },
+      select: { clerkId: true }, // Get clerkId for Clerk deletion
+    });
+
+    if (!userToDelete) {
+      throw new Error("Student not found.");
+    }
+
+    // Delete related records first due to onDelete: Restrict
+    await prisma.exercise.deleteMany({ where: { userId: id } });
+    await prisma.userClass.deleteMany({ where: { userId: id } });
+    await prisma.userExerciseResult.deleteMany({ where: { userId: id } });
+    await prisma.UserRoadmap.deleteMany({ where: { userId: id } });
+    await prisma.userTopicProgress.deleteMany({ where: { userId: id } });
+    await prisma.userVocabProgress.deleteMany({ where: { userId: id } });
+    await prisma.personalLearning.deleteMany({ where: { userId: id } });
+    await prisma.feedBackStudent.deleteMany({ where: { studentId: id } }); // As student
+    await prisma.feedBackStudent.deleteMany({ where: { teacherId: id } }); // As teacher
+
+    // If the user owns a roadmap (userId is unique in Roadmap), delete it
+    await prisma.roadmap.deleteMany({ where: { userId: id } });
+
+    // Delete the local user
+    const deletedUser = await prisma.user.delete({ where: { id } });
+
+    // Delete the Clerk user if clerkId exists
+    if (userToDelete.clerkId) {
+      try {
+        await userService.deleteClerkUser(userToDelete.clerkId); // Assuming userService has this function
+      } catch (clerkError) {
+        console.warn(`Failed to delete Clerk user ${userToDelete.clerkId}: ${clerkError.message}`);
+        // Optionally re-throw or handle if Clerk deletion is critical
+      }
+    }
+
+    return deletedUser;
   },
 
   async enrollRoadmap(userId, roadmapId) {

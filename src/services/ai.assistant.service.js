@@ -1,7 +1,12 @@
 // First, install the library: npm install @google/generative-ai
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { initializeGeminiModel, initializeImageModel, getGenAIInstance, getGenAIImageGenerator } = require("../config/geminiClient"); // Reuse the singleton
+const {
+  initializeGeminiModel,
+  initializeImageModel,
+  getGenAIInstance,
+  getGenAIImageGenerator,
+} = require("../config/geminiClient"); // Reuse the singleton
 const fs = require("node:fs");
 const { uploadFileToDirectus } = require("./directus.service");
 const AI_Assistant = initializeGeminiModel;
@@ -19,8 +24,10 @@ exports.generateVocabularyData = async (topic, wordsExist = []) => {
     );
   }
 
-  const userRequest =
-    AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(topic, wordsExist);
+  const userRequest = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.userContextFormat(
+    topic,
+    wordsExist
+  );
 
   const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
 
@@ -51,19 +58,16 @@ exports.generateTopicSuggestions = async (prompt) => {
     );
   }
   if (!prompt) {
-    throw new Error(
-      "Prompt is required to generate topic suggestions."
-    );
+    throw new Error("Prompt is required to generate topic suggestions.");
   }
 
   const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.TOPIC_SUGGEST_CONFIG.sys_promt;
 
   try {
     const result = await AI_Assistant.generateContent({
-      contents: [
-        { role: "user", parts: [{ text: systemPrompt + prompt }] },
-      ],
-      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.TOPIC_SUGGEST_CONFIG.generationConfig,
+      contents: [{ role: "user", parts: [{ text: systemPrompt + prompt }] }],
+      generationConfig:
+        AI_CONFIG.ADMIN_ASSISTANT.TOPIC_SUGGEST_CONFIG.generationConfig,
     });
 
     const response = result.response;
@@ -96,8 +100,10 @@ exports.generateExercises = async (vocabList) => {
   try {
     const result = await AI_Assistant.generateContent({
       contents: [
-        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
-      generationConfig: AI_CONFIG.ADMIN_ASSISTANT.EXERCISE_CONFIG.generationConfig,
+        { role: "user", parts: [{ text: systemPrompt + userRequest }] },
+      ],
+      generationConfig:
+        AI_CONFIG.ADMIN_ASSISTANT.EXERCISE_CONFIG.generationConfig,
     });
 
     const response = result.response;
@@ -115,10 +121,7 @@ function safeJsonParse(text) {
     // Cố gắng phân tích cú pháp trực tiếp
     return JSON.parse(text);
   } catch (e) {
-    console.warn(
-      "Error.",
-      e.message
-    );
+    console.warn("Error.", e.message);
     // Nếu thất bại, hãy thử tìm một khối mã JSON trong văn bản
     // Ví dụ: ```json\n{...}\n```
     const match = text.match(/```json\s*([\s\S]*?)\s*```/);
@@ -126,10 +129,7 @@ function safeJsonParse(text) {
       try {
         return JSON.parse(match[1]);
       } catch (e2) {
-        console.error(
-          "Error parsing JSON from text:",
-          e2.message
-        );
+        console.error("Error parsing JSON from text:", e2.message);
         return null;
       }
     }
@@ -145,23 +145,19 @@ function safeJsonParse(text) {
  * @param {object} file - image file object containing buffer and mimetype
  */
 exports.generateVocabFromImage = async (file) => {
-
   if (!AI_Assistant) {
     throw new Error(
       "Gemini model has not been initialized. Call initializeGeminiModel() first."
     );
   }
   if (!file || !file.buffer || !file.mimetype) {
-    throw new Error(
-      "File with image data is required to generate vocabulary."
-    );
+    throw new Error("File with image data is required to generate vocabulary.");
   }
   if (!AI_CONFIG?.ADMIN_ASSISTANT?.VOCAB_CONFIG?.sys_promt) {
     throw new Error("System prompt is not defined in AI_CONFIG.");
   }
 
   const prompt = AI_CONFIG.ADMIN_ASSISTANT.VOCAB_CONFIG.sys_promt;
-
 
   const imagePart = {
     inlineData: {
@@ -197,25 +193,27 @@ exports.generateVocabFromImage = async (file) => {
   }
 };
 
-
-
 exports.generateImageFromPrompt = async (prompt) => {
   if (!prompt) {
-    throw new Error(
-      "Prompt is required to generate an image."
-    );
+    throw new Error("Prompt is required to generate an image.");
   }
 
   try {
     const userRequest =
-    AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.userContextFormat(vocabList);
+      AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.userContextFormat(
+        prompt
+      );
 
-  const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.sys_promt;
+    const systemPrompt =
+      AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.sys_promt;
     const genAI = getGenAIImageGenerator();
+    console.log("Using image generation model:", genAI);
     const response = await genAI.models.generateImages({
-      model: 'imagen-3.0-generate-002', // Using the model defined in geminiClient.js
-      contents: [
-        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
+      model: "imagen-3.0-generate-002", // Using the model defined in geminiClient.js
+      // contents: [
+      //   { role: "user", parts: [{ text: systemPrompt + userRequest }] },
+      // ],
+      prompt: userRequest,
       config: {
         numberOfImages: 1, // Generate one image for now
       },
@@ -238,94 +236,96 @@ exports.generateImageFromPrompt = async (prompt) => {
       originalname: filename,
       mimetype: "image/png", // Assuming PNG output
     });
-
-    return { filename: filename, path: filePath, directusFileId: directusFile.id };
+    return {
+      filename: filename,
+      path: filePath,
+      directusFileId: directusFile,
+    };
   } catch (error) {
     console.error("Error generating image from prompt:", error);
     throw new Error(`Error generating image: ${error.message}`);
   }
 };
 
-
-
 exports.generatePersonalLearningFromImage = async (file) => {
-    if (!AI_Assistant) {
-      throw new Error(
-        "Gemini model has not been initialized. Call initializeGeminiModel() first."
-      );
-    }
-    if (!file || !file.buffer || !file.mimetype) {
-      throw new Error(
-        "File with image data is required to generate vocabulary."
-      );
-    }
-    if (!AI_CONFIG?.ADMIN_ASSISTANT?.VISION_CONFIG?.sys_promt) {
-      throw new Error("System prompt is not defined in AI_CONFIG.");
-    }
-  
-    const prompt = AI_CONFIG.ADMIN_ASSISTANT.VISION_CONFIG.userContextFormat('');
-  
-    const imagePart = {
-      inlineData: {
-        data: file.buffer.toString("base64"),
-        mimeType: file.mimetype,
-      },
-    };
-  
-    try {
-      const result = await AI_Assistant.generateContent([prompt, imagePart]);
-      console.log("Text Generating", result.response?.candidates);
-      const response = await result.response;
-      const responseText = response.text();
-  
-      const vocabularyObject = safeJsonParse(responseText);
-  
-      if (!vocabularyObject) {
-        throw new Error(
-          "Phân tích cú pháp JSON từ phản hồi của Gemini thất bại. Phản hồi không chứa JSON hợp lệ."
-        );
-      }
-  
-      console.log(
-        "Đối tượng từ vựng đã phân tích cú pháp thành công:",
-        vocabularyObject
-      );
-      return vocabularyObject;
-    } catch (error) {
-      console.error(
-        "Đã xảy ra lỗi khi gọi API Gemini hoặc xử lý phản hồi:",
-        error
-      );
-      throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
-    }
+  if (!AI_Assistant) {
+    throw new Error(
+      "Gemini model has not been initialized. Call initializeGeminiModel() first."
+    );
+  }
+  if (!file || !file.buffer || !file.mimetype) {
+    throw new Error("File with image data is required to generate vocabulary.");
+  }
+  if (!AI_CONFIG?.ADMIN_ASSISTANT?.VISION_CONFIG?.sys_promt) {
+    throw new Error("System prompt is not defined in AI_CONFIG.");
+  }
+
+  const prompt = AI_CONFIG.ADMIN_ASSISTANT.VISION_CONFIG.userContextFormat("");
+
+  const imagePart = {
+    inlineData: {
+      data: file.buffer.toString("base64"),
+      mimeType: file.mimetype,
+    },
   };
 
-exports.generateQuiz = async (topicTitle, difficulty = "beginner", listVocabs = [], contextContent = "") => {
+  try {
+    const result = await AI_Assistant.generateContent([prompt, imagePart]);
+    console.log("Text Generating", result.response?.candidates);
+    const response = await result.response;
+    const responseText = response.text();
+
+    const vocabularyObject = safeJsonParse(responseText);
+
+    if (!vocabularyObject) {
+      throw new Error(
+        "Phân tích cú pháp JSON từ phản hồi của Gemini thất bại. Phản hồi không chứa JSON hợp lệ."
+      );
+    }
+
+    console.log(
+      "Đối tượng từ vựng đã phân tích cú pháp thành công:",
+      vocabularyObject
+    );
+    return vocabularyObject;
+  } catch (error) {
+    console.error(
+      "Đã xảy ra lỗi khi gọi API Gemini hoặc xử lý phản hồi:",
+      error
+    );
+    throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
+  }
+};
+
+exports.generateQuiz = async (
+  topicTitle,
+  difficulty = "beginner",
+  listVocabs = [],
+  contextContent = ""
+) => {
   if (!AI_Assistant) {
     throw new Error(
       "Gemini model has not been initialized. Call initializeGeminiModel() first."
     );
   }
   if (!topicTitle) {
-    throw new Error(
-      "Topic title is required to generate a quiz."
-    );
+    throw new Error("Topic title is required to generate a quiz.");
   }
 
-  const userRequest =
-    AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.userContextFormat(
-      topicTitle,
-      difficulty,
-      listVocabs,
-      contextContent
-    );
+  const userRequest = AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.userContextFormat(
+    topicTitle,
+    difficulty,
+    listVocabs,
+    contextContent
+  );
 
   const systemPrompt = AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.sys_prompt;
 
   try {
     const result = await AI_Assistant.generateContent({
       contents: [
-        { role: "user", parts: [{ text: systemPrompt + userRequest }] }],
+        { role: "user", parts: [{ text: systemPrompt + userRequest }] },
+      ],
       generationConfig: AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_CONFIG.generationConfig,
     });
 

@@ -44,3 +44,16 @@ exports.addRoadmapToClass = async (req, res) => {
     res.status(500).json({ error: err.message || 'Internal Server Error' });
   }
 };
+
+exports.getStudentFeedbackByClass = async (req, res) => {
+  try {
+    const { studentId, classId } = req.params;
+    const teacherId = req.user.id; // Assuming req.user is populated by auth middleware
+
+    const feedbackList = await teacherService.getStudentFeedbackByClass(teacherId, studentId, classId);
+    res.status(200).json(feedbackList);
+  } catch (err) {
+    console.error('Error fetching student feedback by class:', err);
+    res.status(500).json({ error: err.message || 'Internal Server Error' });
+  }
+};
