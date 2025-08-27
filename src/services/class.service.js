@@ -197,25 +197,33 @@ exports.updateClass = async (classId, data) => {
 
 // services/class.service.js
 exports.deleteClass = async (classId) => {
-  const classExists = await prisma.class.findUnique({
-    where: { id: classId },
-    select: { id: true },
+
+  const exists = await prisma.class.findUnique({ where: { id: classId }, select: { id: true } });
+  if (!exists) throw new NotFoundError(`Class with id ${classId} not found`);
+
+
+  const result = await prisma.$transaction(async (tx) => {
+    const delUC = await tx.userClass.deleteMany({ where: { classId } });
+    const delCR = await tx.classRoadmap.deleteMany({ where: { classId } });
+    const delFB = await tx.feedBackStudent?.deleteMany
+      ? await tx.feedBackStudent.deleteMany({ where: { classId } })
+      : { count: 0 }; // nếu chưa có bảng feedback
+
+    const delClass = await tx.class.deleteMany({ where: { id: classId } }); // tránh P2025
+
+    return {
+      userClasses: delUC.count,
+      classRoadmaps: delCR.count,
+      feedbacks: delFB.count,
+      classes: delClass.count,    
+    };
   });
 
-  if (!classExists) {
-    throw new Error(`Class with id ${classId} not found`);
-  }
+  if (!result.classes) throw new NotFoundError(`Class with id ${classId} not found at delete step`);
 
-  return await prisma.$transaction([
-    prisma.userClass.deleteMany({ where: { classId } }), // Delete UserClass entries
-    prisma.classRoadmap.deleteMany({ where: { classId } }),
-    prisma.class.delete({
-      where: { id: classId },
-    }),
-  ]);
+  return result;
 };
 
-// class.service.js
 
 exports.addTeacherToClass = async (classId, teacherId) => {
   const uc = await prisma.userClass.create({ data: { classId, userId: teacherId, role: "TEACHER" } });
