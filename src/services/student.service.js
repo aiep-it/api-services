@@ -40,8 +40,10 @@ module.exports = {
         },
       });
     } else {
+      // Create Clerk user
+      console.log("Creating Clerk user for parent:", email);
       await clerkClient.users.createUser({
-        email_addresses: [email],
+        emailAddress: [email],
         first_name: fullName,
         last_name: fullName,
         username: `${Date.now()}_parent`,

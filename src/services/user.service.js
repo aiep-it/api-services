@@ -7,8 +7,6 @@ const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
 });
 
-
-
 const RECIPIENT_EMAIL = "<RECIPIENT@EMAIL.COM>";
 
 exports.getAllUsers = async () => {
@@ -142,7 +140,7 @@ exports.createClerkUser = async (userData) => {
   } = userData;
 
   const user = await clerkClient.users.createUser({
-    email_addresses: [email],
+    emailAddress: email ? [email] : [],
     password: password,
     first_name: first_name,
     last_name: last_name,
@@ -188,13 +186,13 @@ exports.sendEmail = async (email, subject, body) => {
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "testmailsending165@gmail.com",       // Gmail của bạn
-        pass: "axgshrkrxxljzogf",          // App Password (không phải mật khẩu Gmail thường)
+        user: "testmailsending165@gmail.com", // Gmail của bạn
+        pass: "axgshrkrxxljzogf", // App Password (không phải mật khẩu Gmail thường)
       },
     });
     let data = await transporter.sendMail({
-      from: 'Snap Learning <no-reply@snaplearn.com>', // sender
-      to: email,             // receiver
+      from: "Snap Learning <no-reply@snaplearn.com>", // sender
+      to: email, // receiver
       subject: subject,
       html: body,
     });
