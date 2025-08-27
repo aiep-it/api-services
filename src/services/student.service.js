@@ -41,7 +41,7 @@ module.exports = {
       });
     } else {
       await clerkClient.users.createUser({
-        email_addresses: email,
+        email_addresses: [email],
         first_name: fullName,
         last_name: fullName,
         username: `${Date.now()}_parent`,

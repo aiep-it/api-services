@@ -142,7 +142,7 @@ exports.createClerkUser = async (userData) => {
   } = userData;
 
   const user = await clerkClient.users.createUser({
-    email_addresses: email,
+    email_addresses: [email],
     password: password,
     first_name: first_name,
     last_name: last_name,
