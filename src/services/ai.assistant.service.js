@@ -192,7 +192,38 @@ exports.generateVocabFromImage = async (file) => {
     throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
   }
 };
+exports.genAIIMageFromText = async (text) => {
+  if (!text) {
+    throw new Error("Prompt is required to generate an image.");
+  }
+  const userRequest =
+      AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.userContextFormat(
+        text
+      );
+    const genAI = getGenAIImageGenerator();
+    console.log("Using image generation model:", genAI);
+    const response = await genAI.models.generateImages({
+      model: "imagen-3.0-generate-002", 
+      prompt: text,
+      config: {
+        numberOfImages: 1, 
+      },
+    });
 
+    const generatedImage = response.generatedImages[0];
+
+    //test
+    const imgBytes = generatedImage.image.imageBytes;
+    const buffer = Buffer.from(imgBytes, "base64");
+
+    const timestamp = Date.now();
+    const filename = `generated-image-${timestamp}.png`;
+    const filePath = `./uploads/${filename}`; // Save to the uploads directory
+
+    fs.writeFileSync(filePath, buffer);
+    //==
+    return generatedImage;
+}
 exports.generateImageFromPrompt = async (prompt) => {
   if (!prompt) {
     throw new Error("Prompt is required to generate an image.");
@@ -203,16 +234,9 @@ exports.generateImageFromPrompt = async (prompt) => {
       AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.userContextFormat(
         prompt
       );
-
-    const systemPrompt =
-      AI_CONFIG.ADMIN_ASSISTANT.IMAGE_GENERATION_CONFIG.sys_promt;
     const genAI = getGenAIImageGenerator();
-    console.log("Using image generation model:", genAI);
     const response = await genAI.models.generateImages({
       model: "imagen-3.0-generate-002", // Using the model defined in geminiClient.js
-      // contents: [
-      //   { role: "user", parts: [{ text: systemPrompt + userRequest }] },
-      // ],
       prompt: userRequest,
       config: {
         numberOfImages: 1, // Generate one image for now
@@ -240,10 +264,64 @@ exports.generateImageFromPrompt = async (prompt) => {
       filename: filename,
       path: filePath,
       directusFileId: directusFile,
+      buffer: buffer, // Add buffer
+      mimetype: "image/png", // Add mimetype (assuming PNG output)
     };
   } catch (error) {
     console.error("Error generating image from prompt:", error);
     throw new Error(`Error generating image: ${error.message}`);
+  }
+};
+
+exports.generateQuizzFromImage = async (file, vocab, difficulty) => {
+  if (!AI_Assistant) {
+    throw new Error(
+      "Gemini model has not been initialized. Call initializeGeminiModel() first."
+    );
+  }
+  
+  if (!file || !file.imageBytes) {
+    throw new Error("File with image data is required to generate vocabulary.");
+  }
+  if (!AI_CONFIG?.ADMIN_ASSISTANT?.QUIZZ_IMAGE_CONFIG.sys_prompt) {
+    throw new Error("System prompt is not defined in AI_CONFIG.");
+  }
+
+  const prompt = AI_CONFIG.ADMIN_ASSISTANT.QUIZZ_IMAGE_CONFIG.userContextFormat(difficulty, vocab);
+
+  const imagePart = {
+    inlineData: {
+      data: file.imageBytes,
+      mimeType: "image/png",
+    },
+  };
+ 
+
+  try {
+    const result = await AI_Assistant.generateContent([prompt, imagePart]);
+    console.log("Text Generating", result.response?.candidates);
+    const response = await result.response;
+    const responseText = response.text();
+
+    const vocabularyObject = safeJsonParse(responseText);
+
+    if (!vocabularyObject) {
+      throw new Error(
+        "Phân tích cú pháp JSON từ phản hồi của Gemini thất bại. Phản hồi không chứa JSON hợp lệ."
+      );
+    }
+
+    console.log(
+      "Đối tượng từ vựng đã phân tích cú pháp thành công:",
+      vocabularyObject
+    );
+    return vocabularyObject;
+  } catch (error) {
+    console.error(
+      "Đã xảy ra lỗi khi gọi API Gemini hoặc xử lý phản hồi:",
+      error
+    );
+    throw new Error(`Lỗi khi tạo từ vựng: ${error.message}`);
   }
 };
 

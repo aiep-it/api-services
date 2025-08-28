@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { generateVocabFromImageHandler, generateImageFromPromptHandler, generateQuizHandler } = require('../controllers/ai.controller');
+const { generateVocabFromImageHandler, generateImageFromPromptHandler, generateQuizHandler, generateQuizMediaHandler } = require('../controllers/ai.controller');
 const {generatePersonalLearningFromImageHandler} = require('../controllers/personal.learning.controller');
 const multer = require('multer');
 
@@ -223,4 +223,9 @@ router.post(
   generateQuizHandler
 );
 
+
+router.post(
+  '/suggest-quiz-media',
+  generateQuizMediaHandler
+);
 module.exports = router;

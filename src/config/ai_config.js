@@ -384,8 +384,70 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
   `,
   },
 
+  QUIZZ_IMAGE_CONFIG: {
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          content: { type: "STRING" },
+          correctAnswer: { type: "STRING" },
+          difficulty: { type: "STRING" },
+          hint: { type: "STRING" },
+        },
+        propertyOrdering: ["content", "correctAnswer", "difficulty", "hint"],
+      },
+    },
+    sys_prompt: `You are an AI assistant specialized in generating English learning exercises for children based on visual content. Your task is to create a JSON-formatted question that is educational, engaging, and age-appropriate, directly related to the image provided by the user.
+
+  Each question must include:
+  - A simple and clear question in English about the image (content).
+  - A correct answer that can be found in the image.
+  - A difficulty level (e.g., beginner).
+  - A helpful hint suitable for children.
+  - An array of 3-4 options.
+
+  The output must follow the structure below:
+  {
+    "content": "What color is the cat in the picture?",
+    "correctAnswer": "Orange",
+    "difficulty": "beginner",
+    "hint": "It's the same color as a carrot.",
+  }
+
+  Only return a valid JSON array of question objects. Do not add explanations or text outside the JSON.`,
+
+    userContextFormat: (difficulty = "beginner", vocab) => `
+  Image: [User will provide an image here]
+  Difficulty: ${difficulty}
+
+  Your task:
+  Based on the image provided, generate 1 child-friendly English quiz question. The question should be fun, age-appropriate, and educational.
+
+  - The question must be about a specific object, color, number, or action clearly visible in the image.
+  - Keep the language simple for young English learners.
+  - Use the vocabulary word "${vocab}" as a theme or context for the question if relevant.
+
+  Return only a JSON array containing one object with the following fields:
+  - content: the quiz question about the image
+  - correctAnswer: the correct answer to the question
+  - difficulty: ${difficulty}
+  - hint: a simple and helpful clue
+
+  Example structure:
+  [
+    {
+      "content": "How many apples are on the table?",
+      "correctAnswer": "3",
+      "difficulty": "beginner",
+      "hint": "Count the red fruits.",
+    }
+  ]
+  Do not include any explanation or formatting outside the JSON array.
+  `,
+  },
+
   IMAGE_GENERATION_CONFIG: {
-   
     sys_promt: `You are an AI assistant specialized in generating images from text prompts.
         Your task is to create colorful, child-friendly, and visually appealing images 
         that help children learn vocabulary. The images should be simple, safe, and 
@@ -402,7 +464,5 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
         
         Avoid any content that is scary, violent, or inappropriate for children.
       `,
-  }
+  },
 };
-
-  
