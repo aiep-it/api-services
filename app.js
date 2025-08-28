@@ -51,6 +51,13 @@ app.use(express.json());
 
 app.use(clerkMiddleware({
   secretKey: process.env.CLERK_SECRET_KEY,
+  enableHandshake: false, 
+  async onAuth(req, res, next) {
+    if (req.path.startsWith("/students/activate")) {
+      return next();
+    }
+    return next();
+  },
 }));
 
 
