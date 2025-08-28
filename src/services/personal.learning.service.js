@@ -31,11 +31,40 @@ const createPersonalLearning = async (data) => {
 };
 
 const updatePersonalLearning = async (id, data) => {
-  return await prisma.personalLearning.update({
-    where: {
-      id,
-    },
-    data,
+  const { vocabs, ...personalLearningData } = data;
+
+  // Start a transaction to ensure atomicity
+  return await prisma.$transaction(async (prisma) => {
+    // 1. Update the PersonalLearning record itself
+    const updatedPersonalLearning = await prisma.personalLearning.update({
+      where: {
+        id,
+      },
+      data: personalLearningData,
+    });
+
+    // 2. Handle vocabs: Delete existing and create new ones
+    // This assumes vocabs in the payload are meant to replace existing ones.
+    if (vocabs !== undefined) {
+      // Delete all existing vocabs for this personal learning entry
+      await prisma.vocab.deleteMany({
+        where: {
+          personalLearningId: id,
+        },
+      });
+
+      // Create new vocabs
+      if (vocabs.length > 0) {
+        await prisma.vocab.createMany({
+          data: vocabs.map(vocab => ({
+            ...vocab,
+            personalLearningId: id, // Link to the current personal learning
+          })),
+        });
+      }
+    }
+
+    return updatedPersonalLearning;
   });
 };
 

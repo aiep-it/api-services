@@ -6,7 +6,15 @@ const vocabSchema = Joi.object({
   example: Joi.string().optional().allow(null, ''),
   imageUrl: Joi.string().optional().allow(null, ''),
   audioUrl: Joi.string().optional().allow(null, ''),
-  topicId: Joi.string().required()
+  topicId: Joi.string().required(),
+
+  //update
+  id: Joi.string().optional(),
+  is_know: Joi.boolean().optional(),
+  is_deleted: Joi.boolean().optional(),
+  created_at: Joi.any().optional(),
+  updated_at: Joi.any().optional(),
+  personalLearningId: Joi.string().optional(),
 });
 
 const createPersonalLearningSchema = Joi.object({
@@ -17,14 +25,12 @@ const createPersonalLearningSchema = Joi.object({
   image: Joi.string().optional().allow(null, ''),
 });
 
-// const getPersonalLearningByUserIdSchema = Joi.object({
-//   userId: Joi.string().required(),
-// });
-
 const updatePersonalLearningSchema = Joi.object({
   id: Joi.string().required(),
   title: Joi.string().min(3).max(255).optional(),
   description: Joi.string().min(3).optional(),
+  image: Joi.string().optional().allow(null, ''),
+  userId: Joi.string().optional(),
   learningObjectives: Joi.array().items(Joi.string()).optional(),
   vocabs: Joi.array().items(vocabSchema).optional(),
   topicId: Joi.string().optional(),
