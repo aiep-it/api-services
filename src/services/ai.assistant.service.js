@@ -212,16 +212,7 @@ exports.genAIIMageFromText = async (text) => {
 
     const generatedImage = response.generatedImages[0];
 
-    //test
-    const imgBytes = generatedImage.image.imageBytes;
-    const buffer = Buffer.from(imgBytes, "base64");
-
-    const timestamp = Date.now();
-    const filename = `generated-image-${timestamp}.png`;
-    const filePath = `./uploads/${filename}`; // Save to the uploads directory
-
-    fs.writeFileSync(filePath, buffer);
-    //==
+  
     return generatedImage;
 }
 exports.generateImageFromPrompt = async (prompt) => {
@@ -251,8 +242,7 @@ exports.generateImageFromPrompt = async (prompt) => {
     const filename = `generated-image-${timestamp}.png`;
     const filePath = `./uploads/${filename}`; // Save to the uploads directory
 
-    fs.writeFileSync(filePath, buffer);
-    console.log(`Generated image saved to: ${filePath}`);
+
 
     // Upload to Directus
     const directusFile = await uploadFileToDirectus({
@@ -264,8 +254,7 @@ exports.generateImageFromPrompt = async (prompt) => {
       filename: filename,
       path: filePath,
       directusFileId: directusFile,
-      buffer: buffer, // Add buffer
-      mimetype: "image/png", // Add mimetype (assuming PNG output)
+   
     };
   } catch (error) {
     console.error("Error generating image from prompt:", error);
