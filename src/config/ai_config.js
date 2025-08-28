@@ -108,7 +108,7 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
         - audioUrl: A real internet link to audio pronunciation of the word.
         - 'imageUrl': A real internet link to an image representing the word.
         
-        Generate a JSON array of vocabulary words on the topic of ${topicTitle}.
+        Generate a JSON array of vocabulary include 5 words on the topic of ${topicTitle}.
         And vocabulary words should be suitable for primary and secondary school children, with a focus on building a strong vocabulary foundation.
         Not exist vocabulary words in the list: ${listVocabsExist}`,
   },
@@ -391,7 +391,7 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
         that help children learn vocabulary. The images should be simple, safe, and 
         suitable for children aged 6–15 years old. Ensure the style is bright, playful, 
         and educational, clearly illustrating the vocabulary word. Avoid any content 
-        that is scary, violent, or inappropriate for children.`},
+        that is scary, violent, or inappropriate for children.`,
     userContextFormat: (vocab) => `
         Generate an image based on the following prompt:
         "${vocab}"
@@ -402,6 +402,7 @@ Format your response as valid JSON with the keys: 'title', 'description', and 'v
         
         Avoid any content that is scary, violent, or inappropriate for children.
       `,
+  }
 };
 
   

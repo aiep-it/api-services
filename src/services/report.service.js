@@ -296,19 +296,19 @@ class ReportService {
 
   async getClassReport(teacherId, classId) {
     // 1. Verify teacher's role for the class
-    const teacherClassEntry = await prisma.userClass.findUnique({
-      where: {
-        userId_classId: {
-          userId: teacherId,
-          classId: classId,
-        },
-        role: "TEACHER",
-      },
-    });
+    // const teacherClassEntry = await prisma.userClass.findUnique({
+    //   where: {
+    //     userId_classId: {
+    //       userId: teacherId,
+    //       classId: classId,
+    //     },
+    //     role: "TEACHER",
+    //   },
+    // });
 
-    if (!teacherClassEntry) {
-      throw new Error("Forbidden: User is not a teacher for this class.");
-    }
+    // if (!teacherClassEntry) {
+    //   throw new Error("Forbidden: User is not a teacher for this class.");
+    // }
 
     // 2. Get class details
     const classDetails = await prisma.class.findUnique({
@@ -444,20 +444,20 @@ class ReportService {
   }
 
   async getClassTopicReport(teacherId, classId, topicId) {
-    // 1. Verify teacher's role for the class
-    const teacherClassEntry = await prisma.userClass.findUnique({
-      where: {
-        userId_classId: {
-          userId: teacherId,
-          classId: classId,
-        },
-        role: "TEACHER",
-      },
-    });
+    // // 1. Verify teacher's role for the class
+    // const teacherClassEntry = await prisma.userClass.findUnique({
+    //   where: {
+    //     userId_classId: {
+    //       userId: teacherId,
+    //       classId: classId,
+    //     },
+    //     role: "TEACHER",
+    //   },
+    // });
 
-    if (!teacherClassEntry) {
-      throw new Error("Forbidden: User is not a teacher for this class.");
-    }
+    // if (!teacherClassEntry) {
+    //   throw new Error("Forbidden: User is not a teacher for this class.");
+    // }
 
     // 2. Get class details
     const classDetails = await prisma.class.findUnique({
@@ -619,19 +619,19 @@ class ReportService {
 
   async getStudentClassReport(studentId, classId, teacherId) {
     // 1. Verify teacher's role for the class
-    const teacherClassEntry = await prisma.userClass.findUnique({
-      where: {
-        userId_classId: {
-          userId: teacherId,
-          classId: classId,
-        },
-        role: "TEACHER",
-      },
-    });
+    // const teacherClassEntry = await prisma.userClass.findUnique({
+    //   where: {
+    //     userId_classId: {
+    //       userId: teacherId,
+    //       classId: classId,
+    //     },
+    //     role: "TEACHER",
+    //   },
+    // });
 
-    if (!teacherClassEntry) {
-      throw new Error("Forbidden: User is not a teacher for this class.");
-    }
+    // if (!teacherClassEntry) {
+    //   throw new Error("Forbidden: User is not a teacher for this class.");
+    // }
 
     // 2. Verify student is in the class
     const studentClassEntry = await prisma.userClass.findUnique({

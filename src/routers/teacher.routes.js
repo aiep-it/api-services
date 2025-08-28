@@ -137,4 +137,45 @@ router.get("/roadmaps/by-class/:classId", protect, authorizeRoles(["teacher"]), 
  */
 router.post("/classes/:classId/roadmaps", protect, teacherController.addRoadmapToClass);
 
+/**
+ * @swagger
+ * /teachers/feedback/students/{studentId}/classes/{classId}:
+ *   get:
+ *     summary: Get feedback for a specific student in a specific class by teacher
+ *     tags: [Teacher]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: studentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the student
+ *       - in: path
+ *         name: classId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the class
+ *     responses:
+ *       200:
+ *         description: List of feedback retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/FeedBackStudent' # Assuming a FeedBackStudent schema exists
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden (if user is not a teacher or not authorized for this class/student)
+ *       404:
+ *         description: Student, Class, or Feedback not found
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get("/feedback/students/:studentId/classes/:classId", protect, teacherController.getStudentFeedbackByClass);
+
 module.exports = router;

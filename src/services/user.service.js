@@ -7,8 +7,6 @@ const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
 });
 
-
-
 const RECIPIENT_EMAIL = "<RECIPIENT@EMAIL.COM>";
 
 exports.getAllUsers = async () => {
@@ -142,7 +140,7 @@ exports.createClerkUser = async (userData) => {
   } = userData;
 
   const user = await clerkClient.users.createUser({
-    email_addresses: email,
+    emailAddress: email ? [email] : [],
     password: password,
     first_name: first_name,
     last_name: last_name,
@@ -188,13 +186,13 @@ exports.sendEmail = async (email, subject, body) => {
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "testmailsending165@gmail.com",       // Gmail của bạn
-        pass: "axgshrkrxxljzogf",          // App Password (không phải mật khẩu Gmail thường)
+        user: "testmailsending165@gmail.com", // Gmail của bạn
+        pass: "axgshrkrxxljzogf", // App Password (không phải mật khẩu Gmail thường)
       },
     });
     let data = await transporter.sendMail({
-      from: 'Snap Learning <no-reply@snaplearn.com>', // sender
-      to: email,             // receiver
+      from: "Snap Learning <no-reply@snaplearn.com>", // sender
+      to: email, // receiver
       subject: subject,
       html: body,
     });
@@ -257,7 +255,7 @@ exports.getStudentFeedback = async (studentId, parentEmail) => {
     throw new Error("Student not found or does not belong to this parent.");
   }
 
-  // 2. Get feedback for the student
+  // 2. Get all feedback for the student
   const feedbackList = await prisma.feedBackStudent.findMany({
     where: {
       studentId: studentId,
@@ -283,5 +281,40 @@ exports.getStudentFeedback = async (studentId, parentEmail) => {
     },
   });
 
-  return feedbackList;
+  // 3. Group feedback by classId and studentId in application logic
+  const groupedFeedback = feedbackList.reduce((acc, feedback) => {
+    const classStudentKey = `${feedback.classId}-${feedback.studentId}`;
+    if (!acc[classStudentKey]) {
+      acc[classStudentKey] = {
+        classId: feedback.classId,
+        studentId: feedback.studentId,
+        classInfo: feedback.class, // Add class information here
+        feedbacks: [], // Change to a simple array for feedbacks
+      };
+    }
+
+    acc[classStudentKey].feedbacks.push({
+      id: feedback.id,
+      teacherId: feedback.teacherId, // Keep teacherId for reference
+      content: feedback.content,
+      created_at: feedback.created_at,
+      updated_at: feedback.updated_at,
+      teacher: feedback.teacher, // Include teacher details
+      // No need to include class here again as it's at a higher level
+    });
+    return acc;
+  }, {});
+
+  // Convert the grouped object back to an array
+  return Object.values(groupedFeedback);
+};
+
+exports.deleteClerkUser = async (clerkId) => {
+  try {
+    await clerkClient.users.deleteUser(clerkId);
+    return { message: `Clerk user ${clerkId} deleted successfully.` };
+  } catch (error) {
+    console.error(`Error deleting Clerk user ${clerkId}:`, error);
+    throw new Error(`Failed to delete Clerk user: ${error.message}`);
+  }
 };
