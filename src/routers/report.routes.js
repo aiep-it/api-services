@@ -24,7 +24,7 @@ const { protect } = require('../middleware/authMiddleware');
  */
 router.get('/self', protect, ReportController.getSelfReport);
 
-router.get('/std/:id', protect, ReportController.getSelfReport);
+router.get('/std/:id', protect, ReportController.getStdReport);
 
 /**
  * @swagger

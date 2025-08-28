@@ -19,6 +19,7 @@ class ReportController {
       next(error);
     }
   }
+  
   async getStdReport(req, res, next) {
     try {
       const { userId } = req.params;
