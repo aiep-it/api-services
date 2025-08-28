@@ -22,7 +22,7 @@ class ReportController {
   
   async getStdReport(req, res, next) {
     try {
-      const { userId } = req.params;
+      const { id: userId } = req.params;
       const report = await ReportService.getSelfReport(userId);
       res.status(200).json({
         userId,
@@ -33,6 +33,7 @@ class ReportController {
       next(error);
     }
   }
+
   async getExerciseResultReportByUser(req, res, next) {
     try {
       const { userId } = req.params;
